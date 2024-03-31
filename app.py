@@ -3,7 +3,7 @@ import json
 import librosa
 import numpy as np
 
-directory = "/path/to/your/music/directory"
+directory = "/directory/path/to/your/audio/files"
 
 output_file = "audio_analysis_enhanced.json"
 
@@ -15,7 +15,7 @@ def analyze_audio(file_path):
 
     onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
     onset_times = librosa.frames_to_time(onset_frames, sr=sr)
-    onsets = [{"time": time, "value": 1} for time in onset_times]
+    onsets = [{"time": time, "value": 1} for time in onset_times] 
 
     hop_length = 512 
     mfccs = librosa.feature.mfcc(y=y, sr=sr, hop_length=hop_length)
@@ -24,10 +24,17 @@ def analyze_audio(file_path):
         mfcc_over_time = [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(mfcc_val)} for j, mfcc_val in enumerate(mfcc)]
         timbre.append({"mfcc{}".format(i+1): mfcc_over_time})
 
+    chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop_length)
+    chroma_over_time = []
+    for i, chroma_val in enumerate(chroma):
+        chroma_val_over_time = [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(chroma_val[j])} for j in range(len(chroma_val))]
+        chroma_over_time.append({"chroma{}".format(i+1): chroma_val_over_time})
+
     return {
         "onsets": onsets,
         "timbre": timbre,
-        "loudness": loudness
+        "loudness": loudness,
+        "chroma": chroma_over_time
     }
 
 analysis_results = {}
