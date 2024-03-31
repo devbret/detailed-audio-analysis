@@ -11,7 +11,7 @@
             .container {
                 position: relative;
                 display: block;
-                height: 1000px;
+                height: 1200px;
             }
             .chart {
                 margin-top: 20px;
@@ -30,7 +30,7 @@
                 stroke: black;
             }
             .axis text {
-                font-size: 0px;
+                font-size: 12px;
             }
         </style>
     </head>
@@ -81,11 +81,11 @@
 
             d3.json('audio_analysis_enhanced.json').then(function (allTracksData) {
                 Object.keys(allTracksData).forEach((trackName, index) => {
-                    console.log(index);
                     const trackData = allTracksData[trackName];
                     const onsetsChartId = `onsets-chart-${index}`;
                     const timbreChartId = `timbre-chart-${index}`;
                     const loudnessChartId = `loudness-chart-${index}`;
+                    const chromaChartId = `chroma-chart-${index}`;
 
                     const containerDIV = d3.select('body').append('div').attr('class', 'container');
 
@@ -94,11 +94,13 @@
                     const onsetsDiv = containerDIV.append('div').attr('id', onsetsChartId).attr('class', 'chart');
                     const timbreDiv = containerDIV.append('div').attr('id', timbreChartId).attr('class', 'chart');
                     const loudnessDiv = containerDIV.append('div').attr('id', loudnessChartId).attr('class', 'chart');
+                    const chromaDiv = containerDIV.append('div').attr('id', chromaChartId).attr('class', 'chart');
 
                     setTimeout(() => {
                         drawChart(trackData.onsets, onsetsChartId, 'steelblue', 'onset');
-                        drawChart(trackData.timbre[0].mfcc1, timbreChartId, 'green', 'line');
-                        drawChart(trackData.loudness, loudnessChartId, 'red', 'line');
+                        drawChart(trackData.timbre[0].mfcc1, timbreChartId, 'rgba(50, 205, 50, 0.6)', 'line');
+                        drawChart(trackData.loudness, loudnessChartId, 'rgba(255, 215, 0, 0.6)', 'line');
+                        drawChart(trackData.chroma[0].chroma1, chromaChartId, 'rgba(255, 0, 255, 0.6)', 'line');
                     }, 0);
                 });
             });
