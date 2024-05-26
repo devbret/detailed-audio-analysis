@@ -9,16 +9,21 @@
                 font-family: sans-serif;
             }
             .container {
+                margin-bottom: 20px;
+            }
+            .buttons {
+                margin-bottom: 20px;
+            }
+            .chart-container {
                 position: relative;
                 display: block;
-                height: 1200px;
+                height: 3500px;
             }
             .chart {
                 margin-top: 20px;
                 padding: 20px;
+                display: none;
                 position: absolute;
-                top: 0;
-                left: 0;
             }
             .line,
             .onset-line {
@@ -32,6 +37,15 @@
             .axis text {
                 font-size: 12px;
             }
+            .toggle-button {
+                margin: 5px;
+                padding: 5px 10px;
+                font-size: 14px;
+                cursor: pointer;
+                background-color: lightgray;
+                border: 1px solid black;
+                border-radius: 5px;
+            }
         </style>
     </head>
     <body>
@@ -39,7 +53,7 @@
             function drawChart(data, elementId, color, chartType) {
                 const margin = { top: 20, right: 20, bottom: 30, left: 50 },
                     width = 6000 - margin.left - margin.right,
-                    height = 1000 - margin.top - margin.bottom;
+                    height = 3000 - margin.top - margin.bottom;
 
                 const svg = d3
                     .select(`#${elementId}`)
@@ -79,6 +93,20 @@
                 }
             }
 
+            function toggleChart(chartId) {
+                console.log(`Toggling chart with ID: ${chartId}`);
+                const chart = document.getElementById(chartId);
+                if (chart) {
+                    if (chart.style.display === 'none' || chart.style.display === '') {
+                        chart.style.display = 'block';
+                    } else {
+                        chart.style.display = 'none';
+                    }
+                } else {
+                    console.log(`Chart with ID ${chartId} not found.`);
+                }
+            }
+
             d3.json('audio_analysis_enhanced.json').then(function (allTracksData) {
                 Object.keys(allTracksData).forEach((trackName, index) => {
                     const trackData = allTracksData[trackName];
@@ -86,21 +114,85 @@
                     const timbreChartId = `timbre-chart-${index}`;
                     const loudnessChartId = `loudness-chart-${index}`;
                     const chromaChartId = `chroma-chart-${index}`;
+                    const tempoChartId = `tempo-chart-${index}`;
+                    const spectralCentroidChartId = `spectral-centroid-chart-${index}`;
+                    const spectralBandwidthChartId = `spectral-bandwidth-chart-${index}`;
+                    const zeroCrossingChartId = `zero-crossing-chart-${index}`;
+                    const spectralContrastChartId = `spectral-contrast-chart-${index}`;
 
                     const containerDIV = d3.select('body').append('div').attr('class', 'container');
 
                     containerDIV.append('h2').text(trackName);
 
-                    const onsetsDiv = containerDIV.append('div').attr('id', onsetsChartId).attr('class', 'chart');
-                    const timbreDiv = containerDIV.append('div').attr('id', timbreChartId).attr('class', 'chart');
-                    const loudnessDiv = containerDIV.append('div').attr('id', loudnessChartId).attr('class', 'chart');
-                    const chromaDiv = containerDIV.append('div').attr('id', chromaChartId).attr('class', 'chart');
+                    const buttonsDiv = containerDIV.append('div').attr('class', 'buttons');
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Onsets')
+                        .on('click', () => toggleChart(onsetsChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Timbre')
+                        .on('click', () => toggleChart(timbreChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Loudness')
+                        .on('click', () => toggleChart(loudnessChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Chroma')
+                        .on('click', () => toggleChart(chromaChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Tempo')
+                        .on('click', () => toggleChart(tempoChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Spectral Centroid')
+                        .on('click', () => toggleChart(spectralCentroidChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Spectral Bandwidth')
+                        .on('click', () => toggleChart(spectralBandwidthChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Zero Crossing Rate')
+                        .on('click', () => toggleChart(zeroCrossingChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button')
+                        .text('Toggle Spectral Contrast')
+                        .on('click', () => toggleChart(spectralContrastChartId));
+
+                    const chartContainerDiv = containerDIV.append('div').attr('class', 'chart-container');
+
+                    const onsetsDiv = chartContainerDiv.append('div').attr('id', onsetsChartId).attr('class', 'chart');
+                    const timbreDiv = chartContainerDiv.append('div').attr('id', timbreChartId).attr('class', 'chart');
+                    const loudnessDiv = chartContainerDiv.append('div').attr('id', loudnessChartId).attr('class', 'chart');
+                    const chromaDiv = chartContainerDiv.append('div').attr('id', chromaChartId).attr('class', 'chart');
+                    const tempoDiv = chartContainerDiv.append('div').attr('id', tempoChartId).attr('class', 'chart');
+                    const spectralCentroidDiv = chartContainerDiv.append('div').attr('id', spectralCentroidChartId).attr('class', 'chart');
+                    const spectralBandwidthDiv = chartContainerDiv.append('div').attr('id', spectralBandwidthChartId).attr('class', 'chart');
+                    const zeroCrossingDiv = chartContainerDiv.append('div').attr('id', zeroCrossingChartId).attr('class', 'chart');
+                    const spectralContrastDiv = chartContainerDiv.append('div').attr('id', spectralContrastChartId).attr('class', 'chart');
 
                     setTimeout(() => {
                         drawChart(trackData.onsets, onsetsChartId, 'steelblue', 'onset');
                         drawChart(trackData.timbre[0].mfcc1, timbreChartId, 'rgba(50, 205, 50, 0.6)', 'line');
                         drawChart(trackData.loudness, loudnessChartId, 'rgba(255, 215, 0, 0.6)', 'line');
                         drawChart(trackData.chroma[0].chroma1, chromaChartId, 'rgba(255, 0, 255, 0.6)', 'line');
+                        drawChart(trackData.tempo, tempoChartId, 'rgba(255, 69, 0, 0.6)', 'line');
+                        drawChart(trackData.spectral_centroid, spectralCentroidChartId, 'rgba(0, 128, 128, 0.6)', 'line');
+                        drawChart(trackData.spectral_bandwidth, spectralBandwidthChartId, 'rgba(75, 0, 130, 0.6)', 'line');
+                        drawChart(trackData.zero_crossing_rate, zeroCrossingChartId, 'rgba(123, 104, 238, 0.6)', 'line');
+                        drawChart(trackData.spectral_contrast[0].contrast1, spectralContrastChartId, 'rgba(255, 99, 71, 0.6)', 'line');
                     }, 0);
                 });
             });
