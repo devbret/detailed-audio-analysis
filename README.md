@@ -4,6 +4,8 @@
 
 Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing and spectral contrast for any number of audio tracks. Then visualize that data over time.
 
+If you would like to view a demo of this software in action, here is [a link to a relevant YouTube video](https://youtu.be/h1X-EuV_z2Y).
+
 ## Set Up
 
 ### Programs Needed 
