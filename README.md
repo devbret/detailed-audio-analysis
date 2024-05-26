@@ -1,6 +1,6 @@
 # Detailed Audio Analyses And Visualizations
 
-![Timbre, loudness, onset and energy over time for numerous DNB tracks.](https://hosting.photobucket.com/images/i/bernhoftbret/enhanced-audio-analyses-lite.jpg)
+![Timbre, loudness, onset and energy over time for numerous DNB tracks.](https://hosting.photobucket.com/images/i/bernhoftbret/screenshot-of-three-dnb-tracks.png)
 
 Measure the evolution of timbre, loudness, onset and energy for any number of audio tracks. Then visualize that data over time.
 
@@ -24,4 +24,4 @@ Measure the evolution of timbre, loudness, onset and energy for any number of au
 
 ## Please Also Note
 
-The JSON file that the Python script outputs will be very, very large. In my experience, putting one Drum And Bass track through this program, produces nearly 100 MB of data. The JSON file that produced the image attached to this repo was 658.2 MB, consisting of analyses from seven DNB tracks.
+The JSON file that the Python script outputs will be very, very large. In my experience, putting one Drum And Bass track through this program, produces over 100 MB of data. The JSON file that produced the image attached to this repo was 329.7 MB, consisting of analyses from only three DNB tracks.
