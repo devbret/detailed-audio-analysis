@@ -2,7 +2,7 @@
 
 ![Timbre, loudness, onset and energy over time for numerous DNB tracks.](https://hosting.photobucket.com/images/i/bernhoftbret/screenshot-of-three-dnb-tracks.png)
 
-Measure the evolution of timbre, loudness, onset and energy for any number of audio tracks. Then visualize that data over time.
+Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing and spectral contrast for any number of audio tracks. Then visualize that data over time.
 
 ## Set Up
 
