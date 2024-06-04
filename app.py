@@ -3,9 +3,19 @@ import json
 import librosa
 import numpy as np
 
-directory = "path/to/audio/files"
-
+directory = "audio/"
 output_file = "audio_analysis_enhanced.json"
+
+def compute_tempo(y, sr, hop_length=1):
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length, aggregate=np.median)
+    tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length, units='frames')
+    beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=hop_length)
+    beat_tempo = []
+    for i, beat_time in enumerate(beat_times[:-1]):
+        next_beat_time = beat_times[i + 1]
+        instantaneous_tempo = 60.0 / (next_beat_time - beat_time)
+        beat_tempo.append({"time": beat_time, "value": instantaneous_tempo})
+    return beat_tempo
 
 def analyze_audio(file_path):
     y, sr = librosa.load(file_path)
@@ -30,9 +40,7 @@ def analyze_audio(file_path):
         chroma_val_over_time = [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(chroma_val[j])} for j in range(len(chroma_val))]
         chroma_over_time.append({"chroma{}".format(i+1): chroma_val_over_time})
 
-    tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-    beat_times = librosa.frames_to_time(beat_frames, sr=sr)
-    beats = [{"time": time, "value": tempo} for time in beat_times]
+    beats = compute_tempo(y, sr, hop_length=hop_length)
 
     spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
     spectral_centroid = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(centroid)} for i, centroid in enumerate(spectral_centroids)]
