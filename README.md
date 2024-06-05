@@ -1,8 +1,8 @@
 # Detailed Audio Analyses And Visualizations
 
-![Timbre, loudness, onset and energy over time for numerous DNB tracks.](https://hosting.photobucket.com/images/i/bernhoftbret/updated-detailed-audio-analysis-ui.jpg)
+![The evolution of fourteen metrics over time for a single DNB tracks.](https://hosting.photobucket.com/images/i/bernhoftbret/detailed-audio-analyses-and-visualizations-enhanced-ui-colored-buttons-dnb.jpg)
 
-Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing and spectral contrast for any number of audio tracks. Then visualize that data over time.
+Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing, spectral contrast, spectral rolloff, mel spectogram, tonnetz, harmonic energy and percussive energy for any number of audio tracks. Then visualize and interact with that data over time.
 
 ## Set Up
 
@@ -19,9 +19,11 @@ Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centr
 4. Navigate to the repo's directory by running; `cd detailed-audio-analysis`.
 5. Install the needed dependencies for running the script by running; `pip install -r requirements.txt`.
 6. Add the audio files you wish to analyze to the local audio folder.
-7. Run the script with the command `python app.py`.
-8. To view the audio analyses with the index.html file, you will need to run a local web server. To do this run `python -m http.server`.
+7. Run the script with the command `python3 app.py`.
+8. To view the audio analyses with the index.html file, you will need to run a local web server. To do this run `python3 -m http.server`.
 
-## Please Also Note
+## Also Note
 
-The JSON file that the Python script outputs will be very, very large. In my experience, putting one Drum And Bass track through this program, produces over 100 MB of data. The JSON file that produced the image attached to this repo was 345.3 MB, consisting of analyses from only three DNB tracks.
+The JSON file that this Python script outputs will be very, very large. And will take a prolonged period of time to generate. As an example, putting one Drum And Bass track through this program, produces almost 500 MB of data, and took eight minutes to create.
+
+Also, your browser may have a difficult time loading and displaying excessively sized JSON files.

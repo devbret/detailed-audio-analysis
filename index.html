@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Detailed Audio Analysis And Visualization</title>
+        <title>Detailed Audio Analyses And Visualizations</title>
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <style>
             * {
@@ -55,22 +55,17 @@
                 padding: var(--button-padding);
                 font-size: var(--font-size);
                 cursor: pointer;
-                background-color: var(--secondary-color);
-                border: 1px solid var(--border-color);
                 border-radius: 5px;
                 transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, transform 0.2s ease,
                     box-shadow var(--transition-speed) ease;
                 box-shadow: 0 2px 4px var(--shadow-color);
+                border: 2px solid black;
             }
             .toggle-button:hover {
-                background-color: var(--highlight-color);
-                border-color: var(--hover-border-color);
                 transform: translateY(-2px);
                 box-shadow: 0 4px 8px var(--hover-shadow-color);
             }
             .toggle-button:active {
-                background-color: var(--active-color);
-                border-color: var(--active-border-color);
                 transform: translateY(0);
                 box-shadow: 0 2px 4px var(--shadow-color);
             }
@@ -89,6 +84,48 @@
                 width: 0;
                 z-index: 11;
             }
+            .onsets-button {
+                background-color: steelblue;
+            }
+            .timbre-button {
+                background-color: rgba(50, 205, 50, 0.6);
+            }
+            .loudness-button {
+                background-color: rgba(255, 215, 0, 0.6);
+            }
+            .chroma-button {
+                background-color: rgba(255, 0, 255, 0.6);
+            }
+            .tempo-button {
+                background-color: rgba(255, 69, 0, 0.6);
+            }
+            .spectral-centroid-button {
+                background-color: rgba(0, 128, 128, 0.6);
+            }
+            .spectral-bandwidth-button {
+                background-color: rgba(75, 0, 130, 0.6);
+            }
+            .zero-crossing-button {
+                background-color: rgba(123, 104, 238, 0.6);
+            }
+            .spectral-contrast-button {
+                background-color: rgba(255, 99, 71, 0.6);
+            }
+            .spectral-rolloff-button {
+                background-color: rgba(255, 105, 180, 0.6);
+            }
+            .mel-spectrogram-button {
+                background-color: rgba(0, 191, 255, 0.6);
+            }
+            .tonnetz-button {
+                background-color: rgba(75, 0, 130, 0.6);
+            }
+            .harmonic-energy-button {
+                background-color: rgba(34, 139, 34, 0.6);
+            }
+            .percussive-energy-button {
+                background-color: rgba(255, 140, 0, 0.6);
+            }
         </style>
     </head>
     <body>
@@ -96,7 +133,7 @@
             let currentAudio = null;
 
             function drawChart(data, elementId, color, chartType, duration) {
-                const margin = { top: 20, right: 30, bottom: 50, left: 40 },
+                const margin = { top: 20, right: 30, bottom: 50, left: 0 },
                     width = 7500 - margin.left - margin.right,
                     height = 1000 - margin.top - margin.bottom;
 
@@ -240,6 +277,11 @@
                     const spectralBandwidthChartId = `spectral-bandwidth-chart-${index}`;
                     const zeroCrossingChartId = `zero-crossing-chart-${index}`;
                     const spectralContrastChartId = `spectral-contrast-chart-${index}`;
+                    const spectralRolloffChartId = `spectral-rolloff-chart-${index}`;
+                    const melSpectrogramChartId = `mel-spectrogram-chart-${index}`;
+                    const tonnetzChartId = `tonnetz-chart-${index}`;
+                    const harmonicEnergyChartId = `harmonic-energy-chart-${index}`;
+                    const percussiveEnergyChartId = `percussive-energy-chart-${index}`;
 
                     const containerDIV = d3.select('body').append('div').attr('class', 'container');
 
@@ -277,49 +319,74 @@
                     const buttonsDiv = containerDIV.append('div').attr('class', 'buttons');
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button onsets-button')
                         .text('Toggle Onsets')
                         .on('click', () => toggleChart(onsetsChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button timbre-button')
                         .text('Toggle Timbre')
                         .on('click', () => toggleChart(timbreChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button loudness-button')
                         .text('Toggle Loudness')
                         .on('click', () => toggleChart(loudnessChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button chroma-button')
                         .text('Toggle Chroma')
                         .on('click', () => toggleChart(chromaChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button tempo-button')
                         .text('Toggle Tempo')
                         .on('click', () => toggleChart(tempoChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button spectral-centroid-button')
                         .text('Toggle Spectral Centroid')
                         .on('click', () => toggleChart(spectralCentroidChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button spectral-bandwidth-button')
                         .text('Toggle Spectral Bandwidth')
                         .on('click', () => toggleChart(spectralBandwidthChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button zero-crossing-button')
                         .text('Toggle Zero Crossing Rate')
                         .on('click', () => toggleChart(zeroCrossingChartId));
                     buttonsDiv
                         .append('button')
-                        .attr('class', 'toggle-button')
+                        .attr('class', 'toggle-button spectral-contrast-button')
                         .text('Toggle Spectral Contrast')
                         .on('click', () => toggleChart(spectralContrastChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button spectral-rolloff-button')
+                        .text('Toggle Spectral Rolloff')
+                        .on('click', () => toggleChart(spectralRolloffChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button mel-spectrogram-button')
+                        .text('Toggle Mel Spectrogram')
+                        .on('click', () => toggleChart(melSpectrogramChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button tonnetz-button')
+                        .text('Toggle Tonnetz')
+                        .on('click', () => toggleChart(tonnetzChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button harmonic-energy-button')
+                        .text('Toggle Harmonic Energy')
+                        .on('click', () => toggleChart(harmonicEnergyChartId));
+                    buttonsDiv
+                        .append('button')
+                        .attr('class', 'toggle-button percussive-energy-button')
+                        .text('Toggle Percussive Energy')
+                        .on('click', () => toggleChart(percussiveEnergyChartId));
 
                     const chartContainerDiv = containerDIV.append('div').attr('class', 'chart-container');
 
@@ -337,6 +404,11 @@
                     const spectralBandwidthDiv = chartContainerDiv.append('div').attr('id', spectralBandwidthChartId).attr('class', 'chart');
                     const zeroCrossingDiv = chartContainerDiv.append('div').attr('id', zeroCrossingChartId).attr('class', 'chart');
                     const spectralContrastDiv = chartContainerDiv.append('div').attr('id', spectralContrastChartId).attr('class', 'chart');
+                    const spectralRolloffDiv = chartContainerDiv.append('div').attr('id', spectralRolloffChartId).attr('class', 'chart');
+                    const melSpectrogramDiv = chartContainerDiv.append('div').attr('id', melSpectrogramChartId).attr('class', 'chart');
+                    const tonnetzDiv = chartContainerDiv.append('div').attr('id', tonnetzChartId).attr('class', 'chart');
+                    const harmonicEnergyDiv = chartContainerDiv.append('div').attr('id', harmonicEnergyChartId).attr('class', 'chart');
+                    const percussiveEnergyDiv = chartContainerDiv.append('div').attr('id', percussiveEnergyChartId).attr('class', 'chart');
 
                     const preloadAudio = new Audio(audioSrc);
                     preloadAudio.addEventListener('loadedmetadata', () => {
@@ -350,6 +422,11 @@
                         drawChart(trackData.spectral_bandwidth, spectralBandwidthChartId, 'rgba(75, 0, 130, 0.6)', 'line', duration);
                         drawChart(trackData.zero_crossing_rate, zeroCrossingChartId, 'rgba(123, 104, 238, 0.6)', 'line', duration);
                         drawChart(trackData.spectral_contrast[0].contrast1, spectralContrastChartId, 'rgba(255, 99, 71, 0.6)', 'line', duration);
+                        drawChart(trackData.spectral_rolloff, spectralRolloffChartId, 'rgba(255, 105, 180, 0.6)', 'line', duration);
+                        drawChart(trackData.mel_spectrogram[0].mel1, melSpectrogramChartId, 'rgba(0, 191, 255, 0.6)', 'line', duration);
+                        drawChart(trackData.tonnetz[0].tonnetz1, tonnetzChartId, 'rgba(75, 0, 130, 0.6)', 'line', duration);
+                        drawChart(trackData.harmonics, harmonicEnergyChartId, 'rgba(34, 139, 34, 0.6)', 'line', duration);
+                        drawChart(trackData.percussives, percussiveEnergyChartId, 'rgba(255, 140, 0, 0.6)', 'line', duration);
                     });
                 });
             });
