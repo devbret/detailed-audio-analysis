@@ -105,9 +105,16 @@ def process_files(directory):
 
     return analysis_results
 
+def numpy_to_python(obj):
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, np.generic):
+        return float(obj)
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
 def save_results(output_file, analysis_results):
     with open(output_file, 'w') as f:
-        json.dump(analysis_results, f, indent=4)
+        json.dump(analysis_results, f, indent=4, default=numpy_to_python)
     print(f"Enhanced audio analysis completed. Results are saved in {output_file}")
 
 if __name__ == "__main__":
