@@ -141,6 +141,9 @@
       .percussive-energy-button {
         background-color: rgba(255, 140, 0, 0.6);
       }
+      .spectral-flux-button {
+        background-color: rgba(46, 139, 87, 0.6);
+      }
     </style>
   </head>
   <body>
@@ -341,6 +344,7 @@
           const tonnetzChartId = `tonnetz-chart-${index}`;
           const harmonicEnergyChartId = `harmonic-energy-chart-${index}`;
           const percussiveEnergyChartId = `percussive-energy-chart-${index}`;
+          const spectralFluxChartId = `spectral-flux-chart-${index}`;
 
           const containerDIV = d3
             .select("body")
@@ -461,6 +465,11 @@
             .attr("class", "toggle-button percussive-energy-button")
             .text("Toggle Percussive Energy")
             .on("click", () => toggleChart(percussiveEnergyChartId));
+          buttonsDiv
+            .append("button")
+            .attr("class", "toggle-button spectral-flux-button")
+            .text("Toggle Spectral Flux")
+            .on("click", () => toggleChart(spectralFluxChartId));
 
           const chartContainerDiv = containerDIV
             .append("div")
@@ -530,6 +539,10 @@
           const percussiveEnergyDiv = chartContainerDiv
             .append("div")
             .attr("id", percussiveEnergyChartId)
+            .attr("class", "chart");
+          const spectralFluxDiv = chartContainerDiv
+            .append("div")
+            .attr("id", spectralFluxChartId)
             .attr("class", "chart");
 
           const preloadAudio = new Audio(audioSrc);
@@ -630,6 +643,13 @@
               trackData.percussives,
               percussiveEnergyChartId,
               "rgba(255, 140, 0, 0.6)",
+              "line",
+              duration
+            );
+            drawChart(
+              trackData.spectral_flux,
+              spectralFluxChartId,
+              "rgba(46, 139, 87, 0.6)",
               "line",
               duration
             );

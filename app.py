@@ -66,6 +66,9 @@ def analyze_audio(file_path):
     harmonics = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(energy)} for i, energy in enumerate(harmonic_energy)]
     percussives = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(energy)} for i, energy in enumerate(percussive_energy)]
 
+    spectral_flux = np.sqrt(np.sum(np.diff(np.abs(librosa.stft(y, hop_length=hop_length)), axis=1)**2, axis=0))
+    flux = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(val)} for i, val in enumerate(spectral_flux)]
+
     return {
         "onsets": onsets,
         "timbre": timbre,
@@ -81,7 +84,8 @@ def analyze_audio(file_path):
         "mel_spectrogram": mel_spec,
         "tonnetz": tonnetz_over_time,
         "harmonics": harmonics,
-        "percussives": percussives
+        "percussives": percussives,
+        "spectral_flux": flux,
     }
 
 def process_files(directory):
