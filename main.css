@@ -1,0 +1,139 @@
+* {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+:root {
+  --primary-color: #333;
+  --secondary-color: #f0f0f0;
+  --highlight-color: #e0e0e0;
+  --active-color: #d0d0d0;
+  --border-color: #ccc;
+  --hover-border-color: #999;
+  --active-border-color: #888;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-shadow-color: rgba(0, 0, 0, 0.2);
+  --font-size: 14px;
+  --transition-speed: 0.3s;
+  --button-padding: 10px 20px;
+}
+h2 {
+  margin-left: 13px;
+  padding: 15px 0px;
+}
+.container,
+.buttons {
+  margin-bottom: 20px;
+}
+.time-display {
+  display: inline-block;
+  margin-left: 50px;
+  font-size: 28px;
+  color: lightgray;
+}
+.volume-slider {
+  margin-bottom: -3px;
+  margin-left: 5px;
+}
+.chart-container {
+  position: relative;
+  height: 1000px;
+}
+.chart {
+  display: none;
+  position: absolute;
+}
+.line,
+.onset-line {
+  fill: none;
+  stroke-width: 3px;
+}
+.axis path,
+.axis line {
+  stroke: var(--primary-color);
+}
+.axis text {
+  font-size: 12px;
+  fill: var(--primary-color);
+}
+.toggle-button {
+  margin: 5px;
+  padding: var(--button-padding);
+  font-size: var(--font-size);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease, transform 0.2s ease,
+    box-shadow var(--transition-speed) ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  border: 2px solid black;
+}
+.toggle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--hover-shadow-color);
+}
+.toggle-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+.progress-bar {
+  width: 7500px;
+  height: 1000px;
+  position: absolute;
+  margin-bottom: 10px;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+.progress {
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  width: 0;
+  z-index: 11;
+}
+.onsets-button {
+  background-color: steelblue;
+}
+.timbre-button {
+  background-color: rgba(50, 205, 50, 0.6);
+}
+.loudness-button {
+  background-color: rgba(255, 215, 0, 0.6);
+}
+.chroma-button {
+  background-color: rgba(255, 0, 255, 0.6);
+}
+.tempo-button {
+  background-color: rgba(255, 69, 0, 0.6);
+}
+.spectral-centroid-button {
+  background-color: rgba(0, 128, 128, 0.6);
+}
+.spectral-bandwidth-button {
+  background-color: rgba(75, 0, 130, 0.6);
+}
+.zero-crossing-button {
+  background-color: rgba(123, 104, 238, 0.6);
+}
+.spectral-contrast-button {
+  background-color: rgba(255, 99, 71, 0.6);
+}
+.spectral-rolloff-button {
+  background-color: rgba(255, 105, 180, 0.6);
+}
+.mel-spectrogram-button {
+  background-color: rgba(0, 191, 255, 0.6);
+}
+.tonnetz-button {
+  background-color: rgba(75, 0, 130, 0.6);
+}
+.harmonic-energy-button {
+  background-color: rgba(34, 139, 34, 0.6);
+}
+.percussive-energy-button {
+  background-color: rgba(255, 140, 0, 0.6);
+}
+.spectral-flux-button {
+  background-color: rgba(46, 139, 87, 0.6);
+}
