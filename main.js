@@ -194,6 +194,7 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     const harmonicEnergyChartId = `harmonic-energy-chart-${index}`;
     const percussiveEnergyChartId = `percussive-energy-chart-${index}`;
     const spectralFluxChartId = `spectral-flux-chart-${index}`;
+    const onsetStrengthChartId = `onset-strength-chart-${index}`;
 
     const containerDIV = d3
       .select("body")
@@ -312,6 +313,11 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
       .attr("class", "toggle-button spectral-flux-button")
       .text("Toggle Spectral Flux")
       .on("click", () => toggleChart(spectralFluxChartId));
+    buttonsDiv
+      .append("button")
+      .attr("class", "toggle-button onset-strength-button")
+      .text("Toggle Onset Strength")
+      .on("click", () => toggleChart(onsetStrengthChartId));
 
     const chartContainerDiv = containerDIV
       .append("div")
@@ -385,6 +391,10 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     const spectralFluxDiv = chartContainerDiv
       .append("div")
       .attr("id", spectralFluxChartId)
+      .attr("class", "chart");
+    const onsetStrengthDiv = chartContainerDiv
+      .append("div")
+      .attr("id", onsetStrengthChartId)
       .attr("class", "chart");
 
     const preloadAudio = new Audio(audioSrc);
@@ -492,6 +502,13 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
         trackData.spectral_flux,
         spectralFluxChartId,
         "rgba(46, 139, 87, 0.6)",
+        "line",
+        duration
+      );
+      drawChart(
+        trackData.onset_strength,
+        onsetStrengthChartId,
+        "rgba(30, 144, 255, 0.6)",
         "line",
         duration
       );

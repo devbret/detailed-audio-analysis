@@ -1,8 +1,8 @@
 # Detailed Audio Analyses And Visualizations
 
-![The evolution of fifteen metrics over time for a single DNB track.](https://hosting.photobucket.com/images/i/bernhoftbret/detailed-audio-analyses-and-visualizations-enhanced-ui-colored-buttons-dnb.jpg)
+![The evolution of sixteen metrics over time for a single DNB track.](https://hosting.photobucket.com/bbcfb0d4-be20-44a0-94dc-65bff8947cf2/9b9a3c2a-87bb-416f-bc4a-953e594fea16.png)
 
-Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing, spectral contrast, spectral rolloff, mel spectogram, tonnetz, harmonic energy, percussive energy and spectral flux for any number of audio tracks. Then visualize and interact with your data over time.
+Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centroid, spectral bandwidth, zero crossing, spectral contrast, spectral rolloff, mel spectogram, tonnetz, harmonic energy, percussive energy, onset strength and spectral flux for any number of audio tracks. Then visualize and interact with your data over time.
 
 ## Set Up
 
@@ -24,6 +24,6 @@ Measure the evolution of onsets, timbre, loudness, chroma, tempo, spectral centr
 
 ## Please Also Note
 
-The JSON file that this Python script outputs will be very, very large. And will take a prolonged period of time to generate. As an example, putting one Drum And Bass track through this program, produces almost 500 MB of data, and took eight minutes to process.
+The JSON file that this Python script outputs will be very, very large. And will take a prolonged period of time to generate. As an example, putting one Drum And Bass track through this program, produces almost 600 MB of data, and took sixty seconds to process.
 
 Also, your browser may have a difficult time loading and displaying excessively sized JSON files.

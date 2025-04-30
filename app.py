@@ -22,54 +22,70 @@ def compute_tempo(y, sr, hop_length=1):
 def analyze_audio(file_path):
     y, sr = librosa.load(file_path)
 
-    rms_energy = librosa.feature.rms(y=y)[0]
-    loudness = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(energy)} for i, energy in enumerate(rms_energy)]
-
-    onset_frames = librosa.onset.onset_detect(y=y, sr=sr)
-    onset_times = librosa.frames_to_time(onset_frames, sr=sr)
-    onsets = [{"time": time, "value": 1} for time in onset_times]
-
+    # Hop length for frame-based features
     hop_length = 512
+
+    # Onset strength envelope (for visualization)
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length, aggregate=np.median)
+    onset_strength = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(val)} for i, val in enumerate(onset_env)]
+
+    # RMS loudness
+    rms_energy = librosa.feature.rms(y=y, hop_length=hop_length)[0]
+    loudness = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(energy)} for i, energy in enumerate(rms_energy)]
+
+    # Onset events (binary)
+    onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=hop_length)
+    onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=hop_length)
+    onsets = [{"time": t, "value": 1} for t in onset_times]
+
+    # MFCC (timbre)
     mfccs = librosa.feature.mfcc(y=y, sr=sr, hop_length=hop_length)
-    timbre = [{"mfcc{}".format(i+1): [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(mfcc_val)} for j, mfcc_val in enumerate(mfcc)]} for i, mfcc in enumerate(mfccs)]
+    timbre = [{f"mfcc{i+1}": [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(m)} for j, m in enumerate(mfcc)]} for i, mfcc in enumerate(mfccs)]
 
+    # Chroma
     chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop_length)
-    chroma_over_time = [{"chroma{}".format(i+1): [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(chroma_val[j])} for j in range(len(chroma_val))]} for i, chroma_val in enumerate(chroma)]
+    chroma_over_time = [{f"chroma{i+1}": [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(v)} for j, v in enumerate(chroma_val)]} for i, chroma_val in enumerate(chroma)]
 
+    # Tempo and beat-based tempo
     beats, overall_tempo = compute_tempo(y, sr, hop_length=hop_length)
 
-    spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
-    spectral_centroid = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(centroid)} for i, centroid in enumerate(spectral_centroids)]
+    # Spectral features
+    spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)[0]
+    spectral_centroid = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(c)} for i, c in enumerate(spectral_centroids)]
 
-    spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)[0]
-    bandwidth = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(bandwidth_val)} for i, bandwidth_val in enumerate(spectral_bandwidth)]
+    spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr, hop_length=hop_length)[0]
+    bandwidth = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(b)} for i, b in enumerate(spectral_bandwidth)]
 
-    zero_crossings = librosa.feature.zero_crossing_rate(y=y)[0]
-    zero_crossing = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(zero)} for i, zero in enumerate(zero_crossings)]
+    zero_crossings = librosa.feature.zero_crossing_rate(y=y, hop_length=hop_length)[0]
+    zero_crossing = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(z)} for i, z in enumerate(zero_crossings)]
 
-    spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
-    contrast = [{"contrast{}".format(i+1): [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(contrast_val[j])} for j in range(len(contrast_val))]} for i, contrast_val in enumerate(spectral_contrast)]
+    spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=hop_length)
+    contrast = [{f"contrast{i+1}": [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(v)} for j, v in enumerate(cval)]} for i, cval in enumerate(spectral_contrast)]
 
-    spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)[0]
-    rolloff = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(rolloff_val)} for i, rolloff_val in enumerate(spectral_rolloff)]
+    spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, hop_length=hop_length)[0]
+    rolloff = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(r)} for i, r in enumerate(spectral_rolloff)]
 
-    mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)
-    mel_spectrogram_db = librosa.power_to_db(mel_spectrogram, ref=np.max)
-    mel_spec = [{"mel{}".format(i+1): [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(mel_val)} for j, mel_val in enumerate(mel)]} for i, mel in enumerate(mel_spectrogram_db)]
+    mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, hop_length=hop_length)
+    mel_db = librosa.power_to_db(mel_spectrogram, ref=np.max)
+    mel_spec = [{f"mel{i+1}": [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(v)} for j, v in enumerate(m)]} for i, m in enumerate(mel_db)]
 
-    tonnetz = librosa.feature.tonnetz(y=y, sr=sr)
-    tonnetz_over_time = [{"tonnetz{}".format(i+1): [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(tonnetz_val[j])} for j in range(len(tonnetz_val))]} for i, tonnetz_val in enumerate(tonnetz)]
+    tonnetz = librosa.feature.tonnetz(y=y, sr=sr, hop_length=hop_length)
+    tonnetz_over_time = [{f"tonnetz{i+1}": [{"time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length), "value": float(v)} for j, v in enumerate(tval)]} for i, tval in enumerate(tonnetz)]
 
+    # Harmonic-percussive separation
     harmonic, percussive = librosa.effects.hpss(y)
-    harmonic_energy = librosa.feature.rms(y=harmonic)[0]
-    percussive_energy = librosa.feature.rms(y=percussive)[0]
-    harmonics = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(energy)} for i, energy in enumerate(harmonic_energy)]
-    percussives = [{"time": librosa.frames_to_time(i, sr=sr), "value": float(energy)} for i, energy in enumerate(percussive_energy)]
+    harm_energy = librosa.feature.rms(y=harmonic, hop_length=hop_length)[0]
+    perc_energy = librosa.feature.rms(y=percussive, hop_length=hop_length)[0]
+    harmonics = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(e)} for i, e in enumerate(harm_energy)]
+    percussives = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(e)} for i, e in enumerate(perc_energy)]
 
-    spectral_flux = np.sqrt(np.sum(np.diff(np.abs(librosa.stft(y, hop_length=hop_length)), axis=1)**2, axis=0))
-    flux = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(val)} for i, val in enumerate(spectral_flux)]
+    # Spectral flux
+    S = np.abs(librosa.stft(y, hop_length=hop_length))
+    flux_vals = np.sqrt(np.sum(np.diff(S, axis=1)**2, axis=0))
+    flux = [{"time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length), "value": float(v)} for i, v in enumerate(flux_vals)]
 
     return {
+        "onset_strength": onset_strength,
         "onsets": onsets,
         "timbre": timbre,
         "loudness": loudness,
