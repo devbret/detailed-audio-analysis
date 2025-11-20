@@ -179,6 +179,7 @@ function formatTime(seconds) {
 d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
   Object.keys(allTracksData).forEach((trackName, index) => {
     const trackData = allTracksData[trackName];
+
     const onsetsChartId = `onsets-chart-${index}`;
     const timbreChartId = `timbre-chart-${index}`;
     const loudnessChartId = `loudness-chart-${index}`;
@@ -195,6 +196,10 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     const percussiveEnergyChartId = `percussive-energy-chart-${index}`;
     const spectralFluxChartId = `spectral-flux-chart-${index}`;
     const onsetStrengthChartId = `onset-strength-chart-${index}`;
+    const pitchChartId = `pitch-chart-${index}`;
+    const harmonicRatioChartId = `harmonic-ratio-chart-${index}`;
+    const noveltyChartId = `novelty-chart-${index}`;
+    const spectralCentroidVelocityChartId = `spectral-centroid-velocity-chart-${index}`;
 
     const containerDIV = d3
       .select("body")
@@ -204,6 +209,7 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     containerDIV.append("h2").text(trackName);
 
     const audioSrc = `audio/${trackName}`;
+
     const playButton = containerDIV
       .append("button")
       .attr("class", "toggle-button")
@@ -238,6 +244,7 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
       .text("0:00 / 0:00");
 
     const buttonsDiv = containerDIV.append("div").attr("class", "buttons");
+
     buttonsDiv
       .append("button")
       .attr("class", "toggle-button onsets-button")
@@ -318,6 +325,26 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
       .attr("class", "toggle-button onset-strength-button")
       .text("Toggle Onset Strength")
       .on("click", () => toggleChart(onsetStrengthChartId));
+    buttonsDiv
+      .append("button")
+      .attr("class", "toggle-button pitch-button")
+      .text("Toggle Pitch")
+      .on("click", () => toggleChart(pitchChartId));
+    buttonsDiv
+      .append("button")
+      .attr("class", "toggle-button harmonic-ratio-button")
+      .text("Toggle Harmonic Ratio")
+      .on("click", () => toggleChart(harmonicRatioChartId));
+    buttonsDiv
+      .append("button")
+      .attr("class", "toggle-button novelty-button")
+      .text("Toggle Novelty")
+      .on("click", () => toggleChart(noveltyChartId));
+    buttonsDiv
+      .append("button")
+      .attr("class", "toggle-button spectral-centroid-velocity-button")
+      .text("Toggle Spectral Centroid Velocity")
+      .on("click", () => toggleChart(spectralCentroidVelocityChartId));
 
     const chartContainerDiv = containerDIV
       .append("div")
@@ -326,6 +353,7 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     const progressBarContainer = chartContainerDiv
       .append("div")
       .attr("class", "progress-bar");
+
     const progressBar = progressBarContainer
       .append("div")
       .attr("class", "progress");
@@ -396,10 +424,27 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
       .append("div")
       .attr("id", onsetStrengthChartId)
       .attr("class", "chart");
+    const pitchDiv = chartContainerDiv
+      .append("div")
+      .attr("id", pitchChartId)
+      .attr("class", "chart");
+    const harmonicRatioDiv = chartContainerDiv
+      .append("div")
+      .attr("id", harmonicRatioChartId)
+      .attr("class", "chart");
+    const noveltyDiv = chartContainerDiv
+      .append("div")
+      .attr("id", noveltyChartId)
+      .attr("class", "chart");
+    const spectralCentroidVelocityDiv = chartContainerDiv
+      .append("div")
+      .attr("id", spectralCentroidVelocityChartId)
+      .attr("class", "chart");
 
     const preloadAudio = new Audio(audioSrc);
     preloadAudio.addEventListener("loadedmetadata", () => {
       const duration = preloadAudio.duration;
+
       drawChart(
         trackData.onsets,
         onsetsChartId,
@@ -509,6 +554,34 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
         trackData.onset_strength,
         onsetStrengthChartId,
         "rgba(30, 144, 255, 0.6)",
+        "line",
+        duration
+      );
+      drawChart(
+        trackData.pitch,
+        pitchChartId,
+        "rgba(0, 255, 127, 0.6)",
+        "line",
+        duration
+      );
+      drawChart(
+        trackData.harmonic_ratio,
+        harmonicRatioChartId,
+        "rgba(139, 0, 139, 0.6)",
+        "line",
+        duration
+      );
+      drawChart(
+        trackData.novelty,
+        noveltyChartId,
+        "rgba(220, 20, 60, 0.6)",
+        "line",
+        duration
+      );
+      drawChart(
+        trackData.spectral_centroid_velocity,
+        spectralCentroidVelocityChartId,
+        "rgba(0, 206, 209, 0.6)",
         "line",
         duration
       );

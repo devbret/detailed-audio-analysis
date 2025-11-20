@@ -1,5 +1,5 @@
+.vscode
 audio_analysis_enhanced.json
-settings.json
 audio/*.wav
 audio/*.mp3
 venv/

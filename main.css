@@ -140,3 +140,15 @@ h2 {
 .onset-strength-button {
   background-color: rgba(30, 144, 255, 0.6);
 }
+.pitch-button {
+  background-color: rgba(0, 255, 127, 0.6);
+}
+.harmonic-ratio-button {
+  background-color: rgba(139, 0, 139, 0.6);
+}
+.novelty-button {
+  background-color: rgba(220, 20, 60, 0.6);
+}
+.spectral-centroid-velocity-button {
+  background-color: rgba(0, 206, 209, 0.6);
+}
