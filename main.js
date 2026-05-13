@@ -101,8 +101,8 @@ function playAudio(audioSrc, progressBar, playButton, volumeSlider) {
     if (currentAudio) {
       timeDisplay.text(
         `${formatTime(currentAudio.currentTime)} / ${formatTime(
-          currentAudio.duration
-        )}`
+          currentAudio.duration,
+        )}`,
       );
     }
   }, 100);
@@ -450,140 +450,140 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
         onsetsChartId,
         "steelblue",
         "onset",
-        duration
+        duration,
       );
       drawChart(
         trackData.timbre[0].mfcc1,
         timbreChartId,
         "rgba(50, 205, 50, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.loudness,
         loudnessChartId,
         "rgba(255, 215, 0, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.chroma[0].chroma1,
         chromaChartId,
         "rgba(255, 0, 255, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.tempo,
         tempoChartId,
         "rgba(255, 69, 0, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_centroid,
         spectralCentroidChartId,
         "rgba(0, 128, 128, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_bandwidth,
         spectralBandwidthChartId,
         "rgba(75, 0, 130, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.zero_crossing_rate,
         zeroCrossingChartId,
         "rgba(123, 104, 238, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_contrast[0].contrast1,
         spectralContrastChartId,
         "rgba(255, 99, 71, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_rolloff,
         spectralRolloffChartId,
         "rgba(255, 105, 180, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.mel_spectrogram[0].mel1,
         melSpectrogramChartId,
         "rgba(0, 191, 255, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.tonnetz[0].tonnetz1,
         tonnetzChartId,
         "rgba(75, 0, 130, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.harmonics,
         harmonicEnergyChartId,
         "rgba(34, 139, 34, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.percussives,
         percussiveEnergyChartId,
         "rgba(255, 140, 0, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_flux,
         spectralFluxChartId,
         "rgba(46, 139, 87, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.onset_strength,
         onsetStrengthChartId,
         "rgba(30, 144, 255, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.pitch,
         pitchChartId,
         "rgba(0, 255, 127, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.harmonic_ratio,
         harmonicRatioChartId,
         "rgba(139, 0, 139, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.novelty,
         noveltyChartId,
         "rgba(220, 20, 60, 0.6)",
         "line",
-        duration
+        duration,
       );
       drawChart(
         trackData.spectral_centroid_velocity,
         spectralCentroidVelocityChartId,
         "rgba(0, 206, 209, 0.6)",
         "line",
-        duration
+        duration,
       );
     });
   });
