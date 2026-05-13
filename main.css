@@ -63,8 +63,10 @@ h2 {
   font-size: var(--font-size);
   cursor: pointer;
   border-radius: 5px;
-  transition: background-color var(--transition-speed) ease,
-    border-color var(--transition-speed) ease, transform 0.2s ease,
+  transition:
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    transform 0.2s ease,
     box-shadow var(--transition-speed) ease;
   box-shadow: 0 2px 4px var(--shadow-color);
   border: 2px solid black;
