@@ -1,3 +1,4 @@
+__pycache__
 .vscode
 audio_analysis_enhanced.json
 audio/*.wav

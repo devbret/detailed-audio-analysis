@@ -7,202 +7,58 @@ import concurrent.futures
 
 directory = "audio/"
 output_file = "audio_analysis_enhanced.json"
+HOP_LENGTH = 512
 
-def compute_tempo(y, sr, hop_length=1):
+def series(values):
+    return {"values": np.round(np.asarray(values, dtype=float), 6).tolist()}
+
+def events(times, values):
+    return {
+        "times": np.round(np.asarray(times, dtype=float), 4).tolist(),
+        "values": np.round(np.asarray(values, dtype=float), 6).tolist(),
+    }
+
+def compute_tempo(y, sr, hop_length=HOP_LENGTH):
     onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length, aggregate=np.median)
     tempo, beat_frames = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr, hop_length=hop_length, units='frames')
     beat_times = librosa.frames_to_time(beat_frames, sr=sr, hop_length=hop_length)
-    beat_tempo = []
-    for i, beat_time in enumerate(beat_times[:-1]):
-        next_beat_time = beat_times[i + 1]
-        instantaneous_tempo = 60.0 / (next_beat_time - beat_time)
-        beat_tempo.append({"time": beat_time, "value": instantaneous_tempo})
-    return beat_tempo, tempo
+    instantaneous_tempo = 60.0 / np.diff(beat_times) if len(beat_times) > 1 else np.array([])
+    return events(beat_times[:-1], instantaneous_tempo), float(np.atleast_1d(tempo)[0])
 
-def analyze_audio(file_path):
+def analyze_audio(file_path, hop_length=HOP_LENGTH):
     y, sr = librosa.load(file_path)
 
-    hop_length = 512
-
     onset_env = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length, aggregate=np.median)
-    onset_strength = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(val)
-        }
-        for i, val in enumerate(onset_env)
-    ]
-
     novelty_vals = np.maximum(0, np.diff(onset_env))
-    novelty = [
-        {
-            "time": librosa.frames_to_time(i + 1, sr=sr, hop_length=hop_length),
-            "value": float(v)
-        }
-        for i, v in enumerate(novelty_vals)
-    ]
 
     rms_energy = librosa.feature.rms(y=y, hop_length=hop_length)[0]
-    loudness = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(energy)
-        }
-        for i, energy in enumerate(rms_energy)
-    ]
 
     onset_frames = librosa.onset.onset_detect(y=y, sr=sr, hop_length=hop_length)
     onset_times = librosa.frames_to_time(onset_frames, sr=sr, hop_length=hop_length)
-    onsets = [{"time": float(t), "value": 1} for t in onset_times]
 
     mfccs = librosa.feature.mfcc(y=y, sr=sr, hop_length=hop_length)
-    timbre = [
-        {
-            f"mfcc{i+1}": [
-                {
-                    "time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length),
-                    "value": float(m)
-                }
-                for j, m in enumerate(mfcc)
-            ]
-        }
-        for i, mfcc in enumerate(mfccs)
-    ]
-
     chroma = librosa.feature.chroma_cqt(y=y, sr=sr, hop_length=hop_length)
-    chroma_over_time = [
-        {
-            f"chroma{i+1}": [
-                {
-                    "time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length),
-                    "value": float(v)
-                }
-                for j, v in enumerate(chroma_val)
-            ]
-        }
-        for i, chroma_val in enumerate(chroma)
-    ]
 
     beats, overall_tempo = compute_tempo(y, sr, hop_length=hop_length)
 
     spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr, hop_length=hop_length)[0]
-    spectral_centroid = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(c)
-        }
-        for i, c in enumerate(spectral_centroids)
-    ]
-
     spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr, hop_length=hop_length)[0]
-    bandwidth = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(b)
-        }
-        for i, b in enumerate(spectral_bandwidth)
-    ]
-
     zero_crossings = librosa.feature.zero_crossing_rate(y=y, hop_length=hop_length)[0]
-    zero_crossing = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(z)
-        }
-        for i, z in enumerate(zero_crossings)
-    ]
-
     spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=hop_length)
-    contrast = [
-        {
-            f"contrast{i+1}": [
-                {
-                    "time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length),
-                    "value": float(v)
-                }
-                for j, v in enumerate(cval)
-            ]
-        }
-        for i, cval in enumerate(spectral_contrast)
-    ]
-
     spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, hop_length=hop_length)[0]
-    rolloff = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(r)
-        }
-        for i, r in enumerate(spectral_rolloff)
-    ]
 
     mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, hop_length=hop_length)
     mel_db = librosa.power_to_db(mel_spectrogram, ref=np.max)
-    mel_spec = [
-        {
-            f"mel{i+1}": [
-                {
-                    "time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length),
-                    "value": float(v)
-                }
-                for j, v in enumerate(m)
-            ]
-        }
-        for i, m in enumerate(mel_db)
-    ]
 
     tonnetz = librosa.feature.tonnetz(y=y, sr=sr, hop_length=hop_length)
-    tonnetz_over_time = [
-        {
-            f"tonnetz{i+1}": [
-                {
-                    "time": librosa.frames_to_time(j, sr=sr, hop_length=hop_length),
-                    "value": float(v)
-                }
-                for j, v in enumerate(tval)
-            ]
-        }
-        for i, tval in enumerate(tonnetz)
-    ]
 
     harmonic, percussive = librosa.effects.hpss(y)
     harm_energy = librosa.feature.rms(y=harmonic, hop_length=hop_length)[0]
     perc_energy = librosa.feature.rms(y=percussive, hop_length=hop_length)[0]
-
-    harmonics = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(e)
-        }
-        for i, e in enumerate(harm_energy)
-    ]
-    percussives = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(e)
-        }
-        for i, e in enumerate(perc_energy)
-    ]
-
-    harmonic_ratio = []
-    for i, (h, p) in enumerate(zip(harm_energy, perc_energy)):
-        total = h + p + 1e-8
-        ratio = h / total
-        harmonic_ratio.append(
-            {
-                "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-                "value": float(ratio)
-            }
-        )
+    harmonic_ratio = harm_energy / (harm_energy + perc_energy + 1e-8)
 
     S = np.abs(librosa.stft(y, hop_length=hop_length))
     flux_vals = np.sqrt(np.sum(np.diff(S, axis=1) ** 2, axis=0))
-    flux = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(v)
-        }
-        for i, v in enumerate(flux_vals)
-    ]
 
     f0 = librosa.yin(
         y,
@@ -212,50 +68,39 @@ def analyze_audio(file_path):
         frame_length=2048,
         hop_length=hop_length
     )
-    pitch = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(p)
-        }
-        for i, p in enumerate(f0)
-    ]
 
     centroid_delta = librosa.feature.delta(spectral_centroids)
-    spectral_centroid_velocity = [
-        {
-            "time": librosa.frames_to_time(i, sr=sr, hop_length=hop_length),
-            "value": float(v)
-        }
-        for i, v in enumerate(centroid_delta)
-    ]
 
     return {
-        "onset_strength": onset_strength,
-        "onsets": onsets,
-        "timbre": timbre,
-        "loudness": loudness,
-        "chroma": chroma_over_time,
-        "tempo": beats,
+        "sr": int(sr),
+        "hop_length": hop_length,
+        "duration": float(librosa.get_duration(y=y, sr=sr)),
         "overall_tempo": overall_tempo,
-        "spectral_centroid": spectral_centroid,
-        "spectral_bandwidth": bandwidth,
-        "zero_crossing_rate": zero_crossing,
-        "spectral_contrast": contrast,
-        "spectral_rolloff": rolloff,
-        "mel_spectrogram": mel_spec,
-        "tonnetz": tonnetz_over_time,
-        "harmonics": harmonics,
-        "percussives": percussives,
-        "spectral_flux": flux,
-        "pitch": pitch,                                    
-        "harmonic_ratio": harmonic_ratio,                   
-        "novelty": novelty,                              
-        "spectral_centroid_velocity": spectral_centroid_velocity,
+        "onsets": events(onset_times, np.ones(len(onset_times))),
+        "onset_strength": series(onset_env),
+        "novelty": series(novelty_vals),
+        "loudness": series(rms_energy),
+        "timbre": {f"mfcc{i+1}": series(m) for i, m in enumerate(mfccs)},
+        "chroma": {f"chroma{i+1}": series(c) for i, c in enumerate(chroma)},
+        "tempo": beats,
+        "spectral_centroid": series(spectral_centroids),
+        "spectral_bandwidth": series(spectral_bandwidth),
+        "zero_crossing_rate": series(zero_crossings),
+        "spectral_contrast": {f"contrast{i+1}": series(c) for i, c in enumerate(spectral_contrast)},
+        "spectral_rolloff": series(spectral_rolloff),
+        "mel_spectrogram": {f"mel{i+1}": series(m) for i, m in enumerate(mel_db)},
+        "tonnetz": {f"tonnetz{i+1}": series(t) for i, t in enumerate(tonnetz)},
+        "harmonics": series(harm_energy),
+        "percussives": series(perc_energy),
+        "harmonic_ratio": series(harmonic_ratio),
+        "spectral_flux": series(flux_vals),
+        "pitch": series(f0),
+        "spectral_centroid_velocity": series(centroid_delta),
     }
 
 def process_files(directory):
     analysis_results = {}
-    files = [f for f in os.listdir(directory) if f.endswith(".mp3") or f.endswith(".wav")]
+    files = [f for f in os.listdir(directory) if f.endswith((".mp3", ".wav"))]
 
     if not files:
         print(f"No audio files found in directory: {directory}")
@@ -263,7 +108,7 @@ def process_files(directory):
 
     print(f"Found {len(files)} audio files in directory: {directory}")
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = {executor.submit(analyze_audio, os.path.join(directory, filename)): filename for filename in files}
         for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Analyzing audio files"):
             filename = futures[future]
@@ -283,7 +128,7 @@ def numpy_to_python(obj):
 
 def save_results(output_file, analysis_results):
     with open(output_file, 'w') as f:
-        json.dump(analysis_results, f, indent=4, default=numpy_to_python)
+        json.dump(analysis_results, f, separators=(",", ":"), default=numpy_to_python)
     print(f"Enhanced audio analysis completed. Results are saved in {output_file}")
 
 if __name__ == "__main__":
