@@ -1,6 +1,37 @@
 let currentAudio = null;
 let updateTimeInterval = null;
-let timeDisplay;
+let activeTimeDisplay = null;
+
+const FEATURES = [
+  { key: "onsets", label: "Onsets", color: "steelblue", chartType: "onset", event: true },
+  { key: "timbre", label: "Timbre", color: "rgba(50, 205, 50, 0.6)", band: "mfcc1" },
+  { key: "loudness", label: "Loudness", color: "rgba(255, 215, 0, 0.6)" },
+  { key: "chroma", label: "Chroma", color: "rgba(255, 0, 255, 0.6)", band: "chroma1" },
+  { key: "tempo", label: "Tempo", color: "rgba(255, 69, 0, 0.6)", event: true },
+  { key: "spectral_centroid", label: "Spectral Centroid", color: "rgba(0, 128, 128, 0.6)" },
+  { key: "spectral_bandwidth", label: "Spectral Bandwidth", color: "rgba(75, 0, 130, 0.6)" },
+  { key: "zero_crossing_rate", label: "Zero Crossing Rate", color: "rgba(123, 104, 238, 0.6)" },
+  { key: "spectral_contrast", label: "Spectral Contrast", color: "rgba(255, 99, 71, 0.6)", band: "contrast1" },
+  { key: "spectral_rolloff", label: "Spectral Rolloff", color: "rgba(255, 105, 180, 0.6)" },
+  { key: "mel_spectrogram", label: "Mel Spectrogram", color: "rgba(0, 191, 255, 0.6)", band: "mel1" },
+  { key: "tonnetz", label: "Tonnetz", color: "rgba(75, 0, 130, 0.6)", band: "tonnetz1" },
+  { key: "harmonics", label: "Harmonic Energy", color: "rgba(34, 139, 34, 0.6)" },
+  { key: "percussives", label: "Percussive Energy", color: "rgba(255, 140, 0, 0.6)" },
+  { key: "spectral_flux", label: "Spectral Flux", color: "rgba(46, 139, 87, 0.6)" },
+  { key: "onset_strength", label: "Onset Strength", color: "rgba(30, 144, 255, 0.6)" },
+  { key: "pitch", label: "Pitch", color: "rgba(0, 255, 127, 0.6)" },
+  { key: "harmonic_ratio", label: "Harmonic Ratio", color: "rgba(139, 0, 139, 0.6)" },
+  { key: "novelty", label: "Novelty", color: "rgba(220, 20, 60, 0.6)" },
+  { key: "spectral_centroid_velocity", label: "Spectral Centroid Velocity", color: "rgba(0, 206, 209, 0.6)" },
+];
+
+function buildSeries(featureData, hopLength, sr) {
+  if (featureData.times) {
+    return featureData.times.map((time, i) => ({ time, value: featureData.values[i] }));
+  }
+  const dt = hopLength / sr;
+  return featureData.values.map((value, i) => ({ time: i * dt, value }));
+}
 
 function drawChart(data, elementId, color, chartType, duration) {
   const margin = { top: 20, right: 30, bottom: 50, left: 0 },
@@ -66,18 +97,6 @@ function drawChart(data, elementId, color, chartType, duration) {
         .attr("stroke", color)
         .attr("class", "onset-line");
     });
-  } else if (chartType === "tempo") {
-    y.domain([0, 1]);
-    data.forEach((d) => {
-      svg
-        .append("line")
-        .attr("x1", x(d.time))
-        .attr("x2", x(d.time))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", color)
-        .attr("class", "tempo-line");
-    });
   }
 }
 
@@ -93,17 +112,20 @@ function toggleChart(chartId) {
   }
 }
 
-function playAudio(audioSrc, progressBar, playButton, volumeSlider) {
+function playAudio(audioSrc, progressBar, playButton, volumeSlider, timeDisplay) {
+  if (activeTimeDisplay && activeTimeDisplay !== timeDisplay) {
+    activeTimeDisplay.textContent = "0:00 / 0:00";
+  }
+  activeTimeDisplay = timeDisplay;
+
   if (updateTimeInterval) {
     clearInterval(updateTimeInterval);
   }
   updateTimeInterval = setInterval(() => {
     if (currentAudio) {
-      timeDisplay.text(
-        `${formatTime(currentAudio.currentTime)} / ${formatTime(
-          currentAudio.duration,
-        )}`,
-      );
+      timeDisplay.textContent = `${formatTime(currentAudio.currentTime)} / ${formatTime(
+        currentAudio.duration,
+      )}`;
     }
   }, 100);
 
@@ -123,6 +145,7 @@ function playAudio(audioSrc, progressBar, playButton, volumeSlider) {
     currentAudio.addEventListener("ended", () => {
       progressBar.style.width = "0%";
       playButton.textContent = "Play Audio";
+      timeDisplay.textContent = "0:00 / 0:00";
       currentAudio = null;
       if (updateTimeInterval) {
         clearInterval(updateTimeInterval);
@@ -135,7 +158,7 @@ function playAudio(audioSrc, progressBar, playButton, volumeSlider) {
   playButton.textContent = "Playing...";
 }
 
-function stopAudio(progressBar, playButton) {
+function stopAudio(progressBar, playButton, timeDisplay) {
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
@@ -147,7 +170,7 @@ function stopAudio(progressBar, playButton) {
     clearInterval(updateTimeInterval);
     updateTimeInterval = null;
   }
-  document.querySelector(".time-display").innerText = "0:00 / 0:00";
+  timeDisplay.textContent = "0:00 / 0:00";
 }
 
 function changeVolume(volumeSlider) {
@@ -179,27 +202,7 @@ function formatTime(seconds) {
 d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
   Object.keys(allTracksData).forEach((trackName, index) => {
     const trackData = allTracksData[trackName];
-
-    const onsetsChartId = `onsets-chart-${index}`;
-    const timbreChartId = `timbre-chart-${index}`;
-    const loudnessChartId = `loudness-chart-${index}`;
-    const chromaChartId = `chroma-chart-${index}`;
-    const tempoChartId = `tempo-chart-${index}`;
-    const spectralCentroidChartId = `spectral-centroid-chart-${index}`;
-    const spectralBandwidthChartId = `spectral-bandwidth-chart-${index}`;
-    const zeroCrossingChartId = `zero-crossing-chart-${index}`;
-    const spectralContrastChartId = `spectral-contrast-chart-${index}`;
-    const spectralRolloffChartId = `spectral-rolloff-chart-${index}`;
-    const melSpectrogramChartId = `mel-spectrogram-chart-${index}`;
-    const tonnetzChartId = `tonnetz-chart-${index}`;
-    const harmonicEnergyChartId = `harmonic-energy-chart-${index}`;
-    const percussiveEnergyChartId = `percussive-energy-chart-${index}`;
-    const spectralFluxChartId = `spectral-flux-chart-${index}`;
-    const onsetStrengthChartId = `onset-strength-chart-${index}`;
-    const pitchChartId = `pitch-chart-${index}`;
-    const harmonicRatioChartId = `harmonic-ratio-chart-${index}`;
-    const noveltyChartId = `novelty-chart-${index}`;
-    const spectralCentroidVelocityChartId = `spectral-centroid-velocity-chart-${index}`;
+    const { sr, hop_length: hopLength, duration } = trackData;
 
     const containerDIV = d3
       .select("body")
@@ -213,18 +216,12 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
     const playButton = containerDIV
       .append("button")
       .attr("class", "toggle-button")
-      .text("Play Audio")
-      .on("click", function () {
-        playAudio(audioSrc, progressBar.node(), this, volumeSlider.node());
-      });
+      .text("Play Audio");
 
     const stopButton = containerDIV
       .append("button")
       .attr("class", "toggle-button")
-      .text("Stop Audio")
-      .on("click", function () {
-        stopAudio(progressBar.node(), playButton.node());
-      });
+      .text("Stop Audio");
 
     const volumeSlider = containerDIV
       .append("input")
@@ -238,114 +235,26 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
         changeVolume(this);
       });
 
-    timeDisplay = containerDIV
+    const timeDisplay = containerDIV
       .append("div")
       .attr("class", "time-display")
       .text("0:00 / 0:00");
 
+    playButton.on("click", function () {
+      playAudio(
+        audioSrc,
+        progressBar.node(),
+        this,
+        volumeSlider.node(),
+        timeDisplay.node(),
+      );
+    });
+
+    stopButton.on("click", function () {
+      stopAudio(progressBar.node(), playButton.node(), timeDisplay.node());
+    });
+
     const buttonsDiv = containerDIV.append("div").attr("class", "buttons");
-
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button onsets-button")
-      .text("Toggle Onsets")
-      .on("click", () => toggleChart(onsetsChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button timbre-button")
-      .text("Toggle Timbre")
-      .on("click", () => toggleChart(timbreChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button loudness-button")
-      .text("Toggle Loudness")
-      .on("click", () => toggleChart(loudnessChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button chroma-button")
-      .text("Toggle Chroma")
-      .on("click", () => toggleChart(chromaChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button tempo-button")
-      .text("Toggle Tempo")
-      .on("click", () => toggleChart(tempoChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-centroid-button")
-      .text("Toggle Spectral Centroid")
-      .on("click", () => toggleChart(spectralCentroidChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-bandwidth-button")
-      .text("Toggle Spectral Bandwidth")
-      .on("click", () => toggleChart(spectralBandwidthChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button zero-crossing-button")
-      .text("Toggle Zero Crossing Rate")
-      .on("click", () => toggleChart(zeroCrossingChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-contrast-button")
-      .text("Toggle Spectral Contrast")
-      .on("click", () => toggleChart(spectralContrastChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-rolloff-button")
-      .text("Toggle Spectral Rolloff")
-      .on("click", () => toggleChart(spectralRolloffChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button mel-spectrogram-button")
-      .text("Toggle Mel Spectrogram")
-      .on("click", () => toggleChart(melSpectrogramChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button tonnetz-button")
-      .text("Toggle Tonnetz")
-      .on("click", () => toggleChart(tonnetzChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button harmonic-energy-button")
-      .text("Toggle Harmonic Energy")
-      .on("click", () => toggleChart(harmonicEnergyChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button percussive-energy-button")
-      .text("Toggle Percussive Energy")
-      .on("click", () => toggleChart(percussiveEnergyChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-flux-button")
-      .text("Toggle Spectral Flux")
-      .on("click", () => toggleChart(spectralFluxChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button onset-strength-button")
-      .text("Toggle Onset Strength")
-      .on("click", () => toggleChart(onsetStrengthChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button pitch-button")
-      .text("Toggle Pitch")
-      .on("click", () => toggleChart(pitchChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button harmonic-ratio-button")
-      .text("Toggle Harmonic Ratio")
-      .on("click", () => toggleChart(harmonicRatioChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button novelty-button")
-      .text("Toggle Novelty")
-      .on("click", () => toggleChart(noveltyChartId));
-    buttonsDiv
-      .append("button")
-      .attr("class", "toggle-button spectral-centroid-velocity-button")
-      .text("Toggle Spectral Centroid Velocity")
-      .on("click", () => toggleChart(spectralCentroidVelocityChartId));
-
     const chartContainerDiv = containerDIV
       .append("div")
       .attr("class", "chart-container");
@@ -360,229 +269,28 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
 
     setupProgressBar(progressBarContainer.node());
 
-    const onsetsDiv = chartContainerDiv
-      .append("div")
-      .attr("id", onsetsChartId)
-      .attr("class", "chart");
-    const timbreDiv = chartContainerDiv
-      .append("div")
-      .attr("id", timbreChartId)
-      .attr("class", "chart");
-    const loudnessDiv = chartContainerDiv
-      .append("div")
-      .attr("id", loudnessChartId)
-      .attr("class", "chart");
-    const chromaDiv = chartContainerDiv
-      .append("div")
-      .attr("id", chromaChartId)
-      .attr("class", "chart");
-    const tempoDiv = chartContainerDiv
-      .append("div")
-      .attr("id", tempoChartId)
-      .attr("class", "chart");
-    const spectralCentroidDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralCentroidChartId)
-      .attr("class", "chart");
-    const spectralBandwidthDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralBandwidthChartId)
-      .attr("class", "chart");
-    const zeroCrossingDiv = chartContainerDiv
-      .append("div")
-      .attr("id", zeroCrossingChartId)
-      .attr("class", "chart");
-    const spectralContrastDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralContrastChartId)
-      .attr("class", "chart");
-    const spectralRolloffDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralRolloffChartId)
-      .attr("class", "chart");
-    const melSpectrogramDiv = chartContainerDiv
-      .append("div")
-      .attr("id", melSpectrogramChartId)
-      .attr("class", "chart");
-    const tonnetzDiv = chartContainerDiv
-      .append("div")
-      .attr("id", tonnetzChartId)
-      .attr("class", "chart");
-    const harmonicEnergyDiv = chartContainerDiv
-      .append("div")
-      .attr("id", harmonicEnergyChartId)
-      .attr("class", "chart");
-    const percussiveEnergyDiv = chartContainerDiv
-      .append("div")
-      .attr("id", percussiveEnergyChartId)
-      .attr("class", "chart");
-    const spectralFluxDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralFluxChartId)
-      .attr("class", "chart");
-    const onsetStrengthDiv = chartContainerDiv
-      .append("div")
-      .attr("id", onsetStrengthChartId)
-      .attr("class", "chart");
-    const pitchDiv = chartContainerDiv
-      .append("div")
-      .attr("id", pitchChartId)
-      .attr("class", "chart");
-    const harmonicRatioDiv = chartContainerDiv
-      .append("div")
-      .attr("id", harmonicRatioChartId)
-      .attr("class", "chart");
-    const noveltyDiv = chartContainerDiv
-      .append("div")
-      .attr("id", noveltyChartId)
-      .attr("class", "chart");
-    const spectralCentroidVelocityDiv = chartContainerDiv
-      .append("div")
-      .attr("id", spectralCentroidVelocityChartId)
-      .attr("class", "chart");
+    FEATURES.forEach((feature) => {
+      const chartId = `${feature.key}-chart-${index}`;
 
-    const preloadAudio = new Audio(audioSrc);
-    preloadAudio.addEventListener("loadedmetadata", () => {
-      const duration = preloadAudio.duration;
+      buttonsDiv
+        .append("button")
+        .attr("class", "toggle-button")
+        .style("background-color", feature.color)
+        .text(`Toggle ${feature.label}`)
+        .on("click", () => toggleChart(chartId));
+
+      chartContainerDiv.append("div").attr("id", chartId).attr("class", "chart");
+
+      const featureData = feature.band
+        ? trackData[feature.key]?.[feature.band]
+        : trackData[feature.key];
+      if (!featureData) return;
 
       drawChart(
-        trackData.onsets,
-        onsetsChartId,
-        "steelblue",
-        "onset",
-        duration,
-      );
-      drawChart(
-        trackData.timbre[0].mfcc1,
-        timbreChartId,
-        "rgba(50, 205, 50, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.loudness,
-        loudnessChartId,
-        "rgba(255, 215, 0, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.chroma[0].chroma1,
-        chromaChartId,
-        "rgba(255, 0, 255, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.tempo,
-        tempoChartId,
-        "rgba(255, 69, 0, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_centroid,
-        spectralCentroidChartId,
-        "rgba(0, 128, 128, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_bandwidth,
-        spectralBandwidthChartId,
-        "rgba(75, 0, 130, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.zero_crossing_rate,
-        zeroCrossingChartId,
-        "rgba(123, 104, 238, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_contrast[0].contrast1,
-        spectralContrastChartId,
-        "rgba(255, 99, 71, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_rolloff,
-        spectralRolloffChartId,
-        "rgba(255, 105, 180, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.mel_spectrogram[0].mel1,
-        melSpectrogramChartId,
-        "rgba(0, 191, 255, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.tonnetz[0].tonnetz1,
-        tonnetzChartId,
-        "rgba(75, 0, 130, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.harmonics,
-        harmonicEnergyChartId,
-        "rgba(34, 139, 34, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.percussives,
-        percussiveEnergyChartId,
-        "rgba(255, 140, 0, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_flux,
-        spectralFluxChartId,
-        "rgba(46, 139, 87, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.onset_strength,
-        onsetStrengthChartId,
-        "rgba(30, 144, 255, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.pitch,
-        pitchChartId,
-        "rgba(0, 255, 127, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.harmonic_ratio,
-        harmonicRatioChartId,
-        "rgba(139, 0, 139, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.novelty,
-        noveltyChartId,
-        "rgba(220, 20, 60, 0.6)",
-        "line",
-        duration,
-      );
-      drawChart(
-        trackData.spectral_centroid_velocity,
-        spectralCentroidVelocityChartId,
-        "rgba(0, 206, 209, 0.6)",
-        "line",
+        buildSeries(featureData, hopLength, sr),
+        chartId,
+        feature.color,
+        feature.chartType || "line",
         duration,
       );
     });
