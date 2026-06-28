@@ -3,31 +3,105 @@ let updateTimeInterval = null;
 let activeTimeDisplay = null;
 
 const FEATURES = [
-  { key: "onsets", label: "Onsets", color: "steelblue", chartType: "onset", event: true },
-  { key: "timbre", label: "Timbre", color: "rgba(50, 205, 50, 0.6)", band: "mfcc1" },
+  {
+    key: "onsets",
+    label: "Onsets",
+    color: "steelblue",
+    chartType: "onset",
+    event: true,
+  },
+  {
+    key: "timbre",
+    label: "Timbre",
+    color: "rgba(50, 205, 50, 0.6)",
+    band: "mfcc1",
+  },
   { key: "loudness", label: "Loudness", color: "rgba(255, 215, 0, 0.6)" },
-  { key: "chroma", label: "Chroma", color: "rgba(255, 0, 255, 0.6)", band: "chroma1" },
+  {
+    key: "chroma",
+    label: "Chroma",
+    color: "rgba(255, 0, 255, 0.6)",
+    band: "chroma1",
+  },
   { key: "tempo", label: "Tempo", color: "rgba(255, 69, 0, 0.6)", event: true },
-  { key: "spectral_centroid", label: "Spectral Centroid", color: "rgba(0, 128, 128, 0.6)" },
-  { key: "spectral_bandwidth", label: "Spectral Bandwidth", color: "rgba(75, 0, 130, 0.6)" },
-  { key: "zero_crossing_rate", label: "Zero Crossing Rate", color: "rgba(123, 104, 238, 0.6)" },
-  { key: "spectral_contrast", label: "Spectral Contrast", color: "rgba(255, 99, 71, 0.6)", band: "contrast1" },
-  { key: "spectral_rolloff", label: "Spectral Rolloff", color: "rgba(255, 105, 180, 0.6)" },
-  { key: "mel_spectrogram", label: "Mel Spectrogram", color: "rgba(0, 191, 255, 0.6)", band: "mel1" },
-  { key: "tonnetz", label: "Tonnetz", color: "rgba(75, 0, 130, 0.6)", band: "tonnetz1" },
-  { key: "harmonics", label: "Harmonic Energy", color: "rgba(34, 139, 34, 0.6)" },
-  { key: "percussives", label: "Percussive Energy", color: "rgba(255, 140, 0, 0.6)" },
-  { key: "spectral_flux", label: "Spectral Flux", color: "rgba(46, 139, 87, 0.6)" },
-  { key: "onset_strength", label: "Onset Strength", color: "rgba(30, 144, 255, 0.6)" },
+  {
+    key: "spectral_centroid",
+    label: "Spectral Centroid",
+    color: "rgba(0, 128, 128, 0.6)",
+  },
+  {
+    key: "spectral_bandwidth",
+    label: "Spectral Bandwidth",
+    color: "rgba(75, 0, 130, 0.6)",
+  },
+  {
+    key: "zero_crossing_rate",
+    label: "Zero Crossing Rate",
+    color: "rgba(123, 104, 238, 0.6)",
+  },
+  {
+    key: "spectral_contrast",
+    label: "Spectral Contrast",
+    color: "rgba(255, 99, 71, 0.6)",
+    band: "contrast1",
+  },
+  {
+    key: "spectral_rolloff",
+    label: "Spectral Rolloff",
+    color: "rgba(255, 105, 180, 0.6)",
+  },
+  {
+    key: "mel_spectrogram",
+    label: "Mel Spectrogram",
+    color: "rgba(0, 191, 255, 0.6)",
+    band: "mel1",
+  },
+  {
+    key: "tonnetz",
+    label: "Tonnetz",
+    color: "rgba(75, 0, 130, 0.6)",
+    band: "tonnetz1",
+  },
+  {
+    key: "harmonics",
+    label: "Harmonic Energy",
+    color: "rgba(34, 139, 34, 0.6)",
+  },
+  {
+    key: "percussives",
+    label: "Percussive Energy",
+    color: "rgba(255, 140, 0, 0.6)",
+  },
+  {
+    key: "spectral_flux",
+    label: "Spectral Flux",
+    color: "rgba(46, 139, 87, 0.6)",
+  },
+  {
+    key: "onset_strength",
+    label: "Onset Strength",
+    color: "rgba(30, 144, 255, 0.6)",
+  },
   { key: "pitch", label: "Pitch", color: "rgba(0, 255, 127, 0.6)" },
-  { key: "harmonic_ratio", label: "Harmonic Ratio", color: "rgba(139, 0, 139, 0.6)" },
+  {
+    key: "harmonic_ratio",
+    label: "Harmonic Ratio",
+    color: "rgba(139, 0, 139, 0.6)",
+  },
   { key: "novelty", label: "Novelty", color: "rgba(220, 20, 60, 0.6)" },
-  { key: "spectral_centroid_velocity", label: "Spectral Centroid Velocity", color: "rgba(0, 206, 209, 0.6)" },
+  {
+    key: "spectral_centroid_velocity",
+    label: "Spectral Centroid Velocity",
+    color: "rgba(0, 206, 209, 0.6)",
+  },
 ];
 
 function buildSeries(featureData, hopLength, sr) {
   if (featureData.times) {
-    return featureData.times.map((time, i) => ({ time, value: featureData.values[i] }));
+    return featureData.times.map((time, i) => ({
+      time,
+      value: featureData.values[i],
+    }));
   }
   const dt = hopLength / sr;
   return featureData.values.map((value, i) => ({ time: i * dt, value }));
@@ -112,7 +186,13 @@ function toggleChart(chartId) {
   }
 }
 
-function playAudio(audioSrc, progressBar, playButton, volumeSlider, timeDisplay) {
+function playAudio(
+  audioSrc,
+  progressBar,
+  playButton,
+  volumeSlider,
+  timeDisplay,
+) {
   if (activeTimeDisplay && activeTimeDisplay !== timeDisplay) {
     activeTimeDisplay.textContent = "0:00 / 0:00";
   }
@@ -279,7 +359,10 @@ d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
         .text(`Toggle ${feature.label}`)
         .on("click", () => toggleChart(chartId));
 
-      chartContainerDiv.append("div").attr("id", chartId).attr("class", "chart");
+      chartContainerDiv
+        .append("div")
+        .attr("id", chartId)
+        .attr("class", "chart");
 
       const featureData = feature.band
         ? trackData[feature.key]?.[feature.band]
