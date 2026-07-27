@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import librosa
 import numpy as np
 from tqdm import tqdm
@@ -9,13 +10,20 @@ directory = "audio/"
 output_file = "audio_analysis_enhanced.json"
 HOP_LENGTH = 512
 
+def finite_list(values, decimals):
+    arr = np.round(np.asarray(values, dtype=float), decimals)
+    out = arr.tolist()
+    if not np.isfinite(arr).all():
+        out = [v if math.isfinite(v) else None for v in out]
+    return out
+
 def series(values):
-    return {"values": np.round(np.asarray(values, dtype=float), 6).tolist()}
+    return {"values": finite_list(values, 6)}
 
 def events(times, values):
     return {
-        "times": np.round(np.asarray(times, dtype=float), 4).tolist(),
-        "values": np.round(np.asarray(values, dtype=float), 6).tolist(),
+        "times": finite_list(times, 4),
+        "values": finite_list(values, 6),
     }
 
 def compute_tempo(y, sr, hop_length=HOP_LENGTH):
@@ -60,7 +68,7 @@ def analyze_audio(file_path, hop_length=HOP_LENGTH):
     S = np.abs(librosa.stft(y, hop_length=hop_length))
     flux_vals = np.sqrt(np.sum(np.diff(S, axis=1) ** 2, axis=0))
 
-    f0 = librosa.yin(
+    f0, _, _ = librosa.pyin(
         y,
         fmin=librosa.note_to_hz('C2'),
         fmax=librosa.note_to_hz('C7'),
@@ -128,7 +136,7 @@ def numpy_to_python(obj):
 
 def save_results(output_file, analysis_results):
     with open(output_file, 'w') as f:
-        json.dump(analysis_results, f, separators=(",", ":"), default=numpy_to_python)
+        json.dump(analysis_results, f, separators=(",", ":"), default=numpy_to_python, allow_nan=False)
     print(f"Enhanced audio analysis completed. Results are saved in {output_file}")
 
 if __name__ == "__main__":

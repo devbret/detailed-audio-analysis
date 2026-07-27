@@ -94,3 +94,12 @@ h2 {
   width: 0;
   z-index: 11;
 }
+.load-error {
+  margin: 40px;
+  padding: 20px;
+  border: 2px solid #c0392b;
+  border-radius: 5px;
+  background-color: #fdecea;
+  color: #c0392b;
+  font-size: 18px;
+}

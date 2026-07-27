@@ -150,6 +150,7 @@ function drawChart(data, elementId, color, chartType, duration) {
 
     const line = d3
       .line()
+      .defined((d) => d.value != null)
       .x((d) => x(d.time))
       .y((d) => y(d.value));
 
@@ -193,6 +194,8 @@ function playAudio(
   volumeSlider,
   timeDisplay,
 ) {
+  const resolvedSrc = new URL(audioSrc, window.location.href).href;
+
   if (activeTimeDisplay && activeTimeDisplay !== timeDisplay) {
     activeTimeDisplay.textContent = "0:00 / 0:00";
   }
@@ -209,14 +212,14 @@ function playAudio(
     }
   }, 100);
 
-  if (currentAudio && currentAudio.src !== audioSrc) {
+  if (currentAudio && currentAudio.src !== resolvedSrc) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
     progressBar.style.width = "0%";
   }
 
-  if (!currentAudio || currentAudio.src !== audioSrc) {
-    currentAudio = new Audio(audioSrc);
+  if (!currentAudio || currentAudio.src !== resolvedSrc) {
+    currentAudio = new Audio(resolvedSrc);
     currentAudio.volume = volumeSlider.value;
     currentAudio.addEventListener("timeupdate", () => {
       const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
@@ -279,103 +282,118 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-d3.json("audio_analysis_enhanced.json").then(function (allTracksData) {
-  Object.keys(allTracksData).forEach((trackName, index) => {
-    const trackData = allTracksData[trackName];
-    const { sr, hop_length: hopLength, duration } = trackData;
+d3.json("audio_analysis_enhanced.json")
+  .then(function (allTracksData) {
+    Object.keys(allTracksData).forEach((trackName, index) => {
+      const trackData = allTracksData[trackName];
+      const { sr, hop_length: hopLength, duration } = trackData;
 
-    const containerDIV = d3
-      .select("body")
-      .append("div")
-      .attr("class", "container");
+      const containerDIV = d3
+        .select("body")
+        .append("div")
+        .attr("class", "container");
 
-    containerDIV.append("h2").text(trackName);
+      containerDIV.append("h2").text(trackName);
 
-    const audioSrc = `audio/${trackName}`;
+      const audioSrc = `audio/${trackName}`;
 
-    const playButton = containerDIV
-      .append("button")
-      .attr("class", "toggle-button")
-      .text("Play Audio");
-
-    const stopButton = containerDIV
-      .append("button")
-      .attr("class", "toggle-button")
-      .text("Stop Audio");
-
-    const volumeSlider = containerDIV
-      .append("input")
-      .attr("type", "range")
-      .attr("min", "0")
-      .attr("max", "1")
-      .attr("step", "0.01")
-      .attr("value", "1")
-      .attr("class", "volume-slider")
-      .on("input", function () {
-        changeVolume(this);
-      });
-
-    const timeDisplay = containerDIV
-      .append("div")
-      .attr("class", "time-display")
-      .text("0:00 / 0:00");
-
-    playButton.on("click", function () {
-      playAudio(
-        audioSrc,
-        progressBar.node(),
-        this,
-        volumeSlider.node(),
-        timeDisplay.node(),
-      );
-    });
-
-    stopButton.on("click", function () {
-      stopAudio(progressBar.node(), playButton.node(), timeDisplay.node());
-    });
-
-    const buttonsDiv = containerDIV.append("div").attr("class", "buttons");
-    const chartContainerDiv = containerDIV
-      .append("div")
-      .attr("class", "chart-container");
-
-    const progressBarContainer = chartContainerDiv
-      .append("div")
-      .attr("class", "progress-bar");
-
-    const progressBar = progressBarContainer
-      .append("div")
-      .attr("class", "progress");
-
-    setupProgressBar(progressBarContainer.node());
-
-    FEATURES.forEach((feature) => {
-      const chartId = `${feature.key}-chart-${index}`;
-
-      buttonsDiv
+      const playButton = containerDIV
         .append("button")
         .attr("class", "toggle-button")
-        .style("background-color", feature.color)
-        .text(`Toggle ${feature.label}`)
-        .on("click", () => toggleChart(chartId));
+        .text("Play Audio");
 
-      chartContainerDiv
+      const stopButton = containerDIV
+        .append("button")
+        .attr("class", "toggle-button")
+        .text("Stop Audio");
+
+      const volumeSlider = containerDIV
+        .append("input")
+        .attr("type", "range")
+        .attr("min", "0")
+        .attr("max", "1")
+        .attr("step", "0.01")
+        .attr("value", "1")
+        .attr("class", "volume-slider")
+        .on("input", function () {
+          changeVolume(this);
+        });
+
+      const timeDisplay = containerDIV
         .append("div")
-        .attr("id", chartId)
-        .attr("class", "chart");
+        .attr("class", "time-display")
+        .text("0:00 / 0:00");
 
-      const featureData = feature.band
-        ? trackData[feature.key]?.[feature.band]
-        : trackData[feature.key];
-      if (!featureData) return;
+      playButton.on("click", function () {
+        playAudio(
+          audioSrc,
+          progressBar.node(),
+          this,
+          volumeSlider.node(),
+          timeDisplay.node(),
+        );
+      });
 
-      drawChart(
-        buildSeries(featureData, hopLength, sr),
-        chartId,
-        feature.color,
-        feature.chartType || "line",
-        duration,
-      );
+      stopButton.on("click", function () {
+        stopAudio(progressBar.node(), playButton.node(), timeDisplay.node());
+      });
+
+      const buttonsDiv = containerDIV.append("div").attr("class", "buttons");
+      const chartContainerDiv = containerDIV
+        .append("div")
+        .attr("class", "chart-container");
+
+      const progressBarContainer = chartContainerDiv
+        .append("div")
+        .attr("class", "progress-bar");
+
+      const progressBar = progressBarContainer
+        .append("div")
+        .attr("class", "progress");
+
+      setupProgressBar(progressBarContainer.node());
+
+      FEATURES.forEach((feature) => {
+        const chartId = `${feature.key}-chart-${index}`;
+        let chartRendered = false;
+
+        buttonsDiv
+          .append("button")
+          .attr("class", "toggle-button")
+          .style("background-color", feature.color)
+          .text(`Toggle ${feature.label}`)
+          .on("click", () => {
+            if (!chartRendered) {
+              chartRendered = true;
+              const featureData = feature.band
+                ? trackData[feature.key]?.[feature.band]
+                : trackData[feature.key];
+              if (featureData) {
+                drawChart(
+                  buildSeries(featureData, hopLength, sr),
+                  chartId,
+                  feature.color,
+                  feature.chartType || "line",
+                  duration,
+                );
+              }
+            }
+            toggleChart(chartId);
+          });
+
+        chartContainerDiv
+          .append("div")
+          .attr("id", chartId)
+          .attr("class", "chart");
+      });
     });
+  })
+  .catch(function (error) {
+    console.error("Failed to load audio analysis data:", error);
+    d3.select("body")
+      .append("div")
+      .attr("class", "load-error")
+      .text(
+        "Could not load audio_analysis_enhanced.json. Generate it by running python3 app.py, then reload this page from a local HTTP server (python3 -m http.server).",
+      );
   });
-});
