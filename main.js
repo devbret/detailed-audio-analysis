@@ -144,9 +144,9 @@ function drawChart(data, elementId, color, chartType, duration) {
     .text("Time (s)");
 
   if (chartType === "line") {
-    const minValue = d3.min(data, (d) => d.value) * 0.95;
-    const maxValue = d3.max(data, (d) => d.value) * 1.05;
-    y.domain([minValue, maxValue]);
+    const [minValue, maxValue] = d3.extent(data, (d) => d.value);
+    const padding = (maxValue - minValue) * 0.05 || 1;
+    y.domain([minValue - padding, maxValue + padding]);
 
     const line = d3
       .line()
