@@ -1,6 +1,6 @@
 # Detailed Audio Analysis And Visualizations
 
-![The evolution of twenty audio features over time.](https://hosting.photobucket.com/bbcfb0d4-be20-44a0-94dc-65bff8947cf2/a84d0d1d-61a8-4052-8994-0ae013b16cd0.png)
+![The evolution of twenty audio features over time.](https://hosting.photobucket.com/bbcfb0d4-be20-44a0-94dc-65bff8947cf2/613a19d4-080f-45a7-a8d6-1baa9348925c.png)
 
 Analyze and visualize how rhythm, timbre, loudness, pitch, spectral characteristics and other key audio features evolve over time across any number of tracks.
 
