@@ -2,18 +2,87 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="author" content="Bret Bernhoft" />
+    <title>Detailed Audio Analyses And Visualizations</title>
     <link
       rel="icon"
       href="https://hosting.photobucket.com/bbcfb0d4-be20-44a0-94dc-65bff8947cf2/ff4a3384-baa9-4bc2-94c9-6bff4e3d3ea0.png"
       type="image/x-icon"
     />
-    <title>Detailed Audio Analyses And Visualizations</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="main.css" />
-    <meta name="author" content="Bret Bernhoft" />
+    <script src="vendor/d3.v7.9.0.min.js"></script>
+    <script type="module" src="src/main.js"></script>
   </head>
   <body>
-    <script src="main.js"></script>
+    <header class="topbar">
+      <h1 class="brand">Detailed Audio Analyses And Visualizations</h1>
+      <label class="field">
+        <span>Track</span>
+        <select id="track-select" aria-label="Track"></select>
+      </label>
+      <div class="group transport">
+        <button id="play" class="btn primary" type="button" disabled>
+          Play
+        </button>
+        <span id="time" class="time">0:00 / 0:00</span>
+        <label class="field">
+          <span>Volume</span>
+          <input
+            id="volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="1"
+            aria-label="Volume"
+          />
+        </label>
+        <label class="check"
+          ><input id="follow" type="checkbox" checked /> Follow playhead</label
+        >
+      </div>
+      <div class="group" role="group" aria-label="Time window">
+        <button class="btn" type="button" data-span="full">Full</button>
+        <button class="btn" type="button" data-span="60">60 s</button>
+        <button class="btn" type="button" data-span="10">10 s</button>
+        <button class="btn" type="button" id="zoom-out" aria-label="Zoom out">
+          -
+        </button>
+        <button class="btn" type="button" id="zoom-in" aria-label="Zoom in">
+          +
+        </button>
+      </div>
+      <div class="group">
+        <label class="field">
+          <span>Heat ramp</span>
+          <select id="ramp" aria-label="Heat ramp">
+            <option value="mono">Mono</option>
+            <option value="magma">Magma</option>
+          </select>
+        </label>
+        <button class="btn" type="button" id="theme">Theme: Auto</button>
+        <button class="btn" type="button" id="export">Export CSV</button>
+      </div>
+    </header>
+    <main>
+      <section id="status" class="status" hidden></section>
+      <section id="chips" class="chips" aria-label="Features"></section>
+      <section
+        id="overview"
+        class="overview"
+        aria-label="Track overview"
+      ></section>
+      <section
+        id="stack"
+        class="stack"
+        tabindex="0"
+        aria-label="Feature panels"
+      ></section>
+      <canvas id="time-axis" class="time-axis" aria-hidden="true"></canvas>
+      <p class="hint"></p>
+    </main>
+    <audio id="audio" preload="metadata"></audio>
   </body>
 </html>
