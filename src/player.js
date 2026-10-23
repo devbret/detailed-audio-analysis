@@ -41,7 +41,11 @@ export class Player {
     audio.addEventListener("loadedmetadata", () => {
       if (Number.isFinite(audio.duration)) this.duration = audio.duration;
       if (this.pendingSeek != null) {
-        audio.currentTime = clamp(this.pendingSeek, 0, this.duration || this.pendingSeek);
+        audio.currentTime = clamp(
+          this.pendingSeek,
+          0,
+          this.duration || this.pendingSeek,
+        );
         this.pendingSeek = null;
       }
       this.tick();

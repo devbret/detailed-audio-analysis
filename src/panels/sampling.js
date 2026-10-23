@@ -59,7 +59,13 @@ export function visibleExtent(values, dt, axis) {
   return min <= max ? [min, max] : [NaN, NaN];
 }
 
-export function drawSampled(ctx, sample, y, color, { washAlpha = 0.22, lineWidth = 2 } = {}) {
+export function drawSampled(
+  ctx,
+  sample,
+  y,
+  color,
+  { washAlpha = 0.22, lineWidth = 2 } = {},
+) {
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
   ctx.strokeStyle = color;
@@ -103,7 +109,12 @@ export function drawSampled(ctx, sample, y, color, { washAlpha = 0.22, lineWidth
     let e = k;
     while (e < n && mins[e] === mins[e]) e++;
     if (e - k === 1) {
-      ctx.fillRect(x0 + k, Math.min(y(maxs[k]), y(mins[k])) - 1, 1.5, Math.abs(y(mins[k]) - y(maxs[k])) + 2);
+      ctx.fillRect(
+        x0 + k,
+        Math.min(y(maxs[k]), y(mins[k])) - 1,
+        1.5,
+        Math.abs(y(mins[k]) - y(maxs[k])) + 2,
+      );
       k = e;
       continue;
     }

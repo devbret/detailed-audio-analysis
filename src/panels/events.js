@@ -28,13 +28,23 @@ export class EventsPanel extends Panel {
       const px = Math.round(this.plotLeft + axis.timeToX(times[k]));
       if (px === lastPx) continue;
       lastPx = px;
-      ctx.fillRect(px - (wide ? 1 : 0), this.plotTop, wide ? 2 : 1, this.plotHeight);
+      ctx.fillRect(
+        px - (wide ? 1 : 0),
+        this.plotTop,
+        wide ? 2 : 1,
+        this.plotHeight,
+      );
     }
     ctx.globalAlpha = 1;
     const label = `${k1 - k0} in view`;
     const labelWidth = ctx.measureText(label).width + 10;
     ctx.fillStyle = T.surface;
-    ctx.fillRect(this.plotRight - labelWidth, this.plotTop, labelWidth, this.plotHeight);
+    ctx.fillRect(
+      this.plotRight - labelWidth,
+      this.plotTop,
+      labelWidth,
+      this.plotHeight,
+    );
     ctx.fillStyle = T.muted;
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
@@ -62,9 +72,12 @@ export class EventsPanel extends Panel {
     const k = this.nearest(time);
     if (k < 0) return { value: "-" };
     const t = this.data.times[k];
-    if (Math.abs(t - time) > Math.max(0.25, this.data.dt * 2)) return { value: "-" };
+    if (Math.abs(t - time) > Math.max(0.25, this.data.dt * 2))
+      return { value: "-" };
     const bpm = this.data.values ? this.data.values[k] : NaN;
-    return { value: formatTime(t, 2) + (bpm === bpm ? `, ${bpm.toFixed(1)} BPM` : "") };
+    return {
+      value: formatTime(t, 2) + (bpm === bpm ? `, ${bpm.toFixed(1)} BPM` : ""),
+    };
   }
 
   csvColumns() {
@@ -72,7 +85,8 @@ export class EventsPanel extends Panel {
     return [
       {
         name: this.feature.id,
-        at: (i) => bisectLeft(times, (i + 0.5) * dt) - bisectLeft(times, (i - 0.5) * dt),
+        at: (i) =>
+          bisectLeft(times, (i + 0.5) * dt) - bisectLeft(times, (i - 0.5) * dt),
       },
     ];
   }

@@ -49,7 +49,10 @@ export class StepPanel extends Panel {
       this.drawMessage(ctx, "Not enough beats to estimate tempo", T);
       return;
     }
-    const y = d3.scaleLinear().domain(this.yDomain(axis)).range([this.plotBottom, this.plotTop]);
+    const y = d3
+      .scaleLinear()
+      .domain(this.yDomain(axis))
+      .range([this.plotBottom, this.plotTop]);
     this.drawYAxis(ctx, y, T);
     const [t0, t1] = axis.domain;
     const overall = this.track.overall_tempo;
@@ -65,7 +68,11 @@ export class StepPanel extends Panel {
       ctx.fillStyle = T.muted;
       ctx.textAlign = "right";
       ctx.textBaseline = "bottom";
-      ctx.fillText(`${overall.toFixed(1)} BPM overall`, this.plotRight - 4, oy - 2);
+      ctx.fillText(
+        `${overall.toFixed(1)} BPM overall`,
+        this.plotRight - 4,
+        oy - 2,
+      );
     }
     let k = Math.max(0, bisectRight(d.times, t0) - 1);
     ctx.strokeStyle = this.hue(T);
@@ -100,7 +107,9 @@ export class StepPanel extends Panel {
 
   valueAt(time) {
     const v = this.bpmAt(time);
-    return { value: v === v ? `${formatValue(v, this.feature.decimals)} BPM` : "-" };
+    return {
+      value: v === v ? `${formatValue(v, this.feature.decimals)} BPM` : "-",
+    };
   }
 
   csvColumns() {

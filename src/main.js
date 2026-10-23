@@ -5,12 +5,26 @@ import { PanelStack } from "./panel-stack.js";
 import { Overview } from "./overview.js";
 import { Player } from "./player.js";
 import { createPanel } from "./panels/index.js";
-import { applyTheme, onThemeChange, themeSetting, setThemeSetting, rampSetting, setRamp } from "./theme.js";
+import {
+  applyTheme,
+  onThemeChange,
+  themeSetting,
+  setThemeSetting,
+  rampSetting,
+  setRamp,
+} from "./theme.js";
 import { readHash, writeHash } from "./hash.js";
 import { buildChips, setChipPressed } from "./chips.js";
 
 const $ = (selector) => document.querySelector(selector);
-const state = { manifest: null, track: null, axis: null, open: [], panels: new Map(), follow: true };
+const state = {
+  manifest: null,
+  track: null,
+  axis: null,
+  open: [],
+  panels: new Map(),
+  follow: true,
+};
 
 applyTheme();
 
@@ -52,14 +66,22 @@ function syncHash() {
   writeHash({
     track: state.track.id,
     panels: stack.panels.map((p) => p.feature.id),
-    view: state.axis.isFull ? null : state.axis.domain.map((v) => +v.toFixed(3)),
+    view: state.axis.isFull
+      ? null
+      : state.axis.domain.map((v) => +v.toFixed(3)),
   });
 }
 
 function openPanel(id) {
   const feature = FEATURE_BY_ID.get(id);
   const track = state.track;
-  if (!feature || !track || !track.features[feature.source] || state.panels.has(id)) return false;
+  if (
+    !feature ||
+    !track ||
+    !track.features[feature.source] ||
+    state.panels.has(id)
+  )
+    return false;
   const panel = createPanel(feature, track);
   state.panels.set(id, panel);
   stack.add(panel);
@@ -130,7 +152,8 @@ function handleTime(t) {
   if (!axis || !state.follow || !player.playing || axis.isFull) return;
   const [d0, d1] = axis.domain;
   const span = axis.span;
-  if (t > d1 - span * 0.02 || t < d0) axis.setDomain([t - span * 0.1, t + span * 0.9]);
+  if (t > d1 - span * 0.02 || t < d0)
+    axis.setDomain([t - span * 0.1, t + span * 0.9]);
 }
 
 function viewCenter() {
@@ -142,7 +165,8 @@ function viewCenter() {
 
 function updateThemeButton() {
   const setting = themeSetting();
-  $("#theme").textContent = `Theme: ${setting[0].toUpperCase()}${setting.slice(1)}`;
+  $("#theme").textContent =
+    `Theme: ${setting[0].toUpperCase()}${setting.slice(1)}`;
 }
 
 function wireControls() {
@@ -158,8 +182,14 @@ function wireControls() {
       else state.axis.setSpan(Number(span), viewCenter());
     });
   }
-  $("#zoom-in").addEventListener("click", () => state.axis && state.axis.zoomAround(1.5, viewCenter()));
-  $("#zoom-out").addEventListener("click", () => state.axis && state.axis.zoomAround(1 / 1.5, viewCenter()));
+  $("#zoom-in").addEventListener(
+    "click",
+    () => state.axis && state.axis.zoomAround(1.5, viewCenter()),
+  );
+  $("#zoom-out").addEventListener(
+    "click",
+    () => state.axis && state.axis.zoomAround(1 / 1.5, viewCenter()),
+  );
   $("#follow").addEventListener("change", (e) => {
     state.follow = e.target.checked;
   });
@@ -177,7 +207,11 @@ function wireControls() {
     overview.draw();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.code !== "Space" || e.target.closest("input, select, textarea, button, [contenteditable]")) return;
+    if (
+      e.code !== "Space" ||
+      e.target.closest("input, select, textarea, button, [contenteditable]")
+    )
+      return;
     e.preventDefault();
     player.toggle();
   });
@@ -203,7 +237,10 @@ async function init() {
   }
   state.manifest = manifest;
   if (!manifest.tracks.length) {
-    showStatus("The analysis index lists no tracks. Add audio files to <code>audio/</code> and run <code>python3 app.py</code> again.", true);
+    showStatus(
+      "The analysis index lists no tracks. Add audio files to <code>audio/</code> and run <code>python3 app.py</code> again.",
+      true,
+    );
     return;
   }
   if (manifest.legacy) {
@@ -223,8 +260,11 @@ async function init() {
     select.append(option);
   }
   const hash = readHash();
-  const track = manifest.tracks.find((t) => t.id === hash.track) || manifest.tracks[0];
-  state.open = hash.panels ? hash.panels.filter((id) => FEATURE_BY_ID.has(id)) : [...DEFAULT_OPEN];
+  const track =
+    manifest.tracks.find((t) => t.id === hash.track) || manifest.tracks[0];
+  state.open = hash.panels
+    ? hash.panels.filter((id) => FEATURE_BY_ID.has(id))
+    : [...DEFAULT_OPEN];
   wireControls();
   selectTrack(track, hash.view);
 }

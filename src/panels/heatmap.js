@@ -44,9 +44,17 @@ export class HeatmapPanel extends Panel {
     ramp.className = "ramp";
     ramp.style.background = cssGradient(this.lutKind);
     const units = f.units ? ` ${f.units}` : "";
-    const left = f.rowNormalize ? "row low" : formatValue(lo, f.decimals) + units;
-    const right = f.rowNormalize ? "row high" : formatValue(hi, f.decimals) + units;
-    this.legend.replaceChildren(document.createTextNode(left), ramp, document.createTextNode(right));
+    const left = f.rowNormalize
+      ? "row low"
+      : formatValue(lo, f.decimals) + units;
+    const right = f.rowNormalize
+      ? "row high"
+      : formatValue(hi, f.decimals) + units;
+    this.legend.replaceChildren(
+      document.createTextNode(left),
+      ramp,
+      document.createTextNode(right),
+    );
   }
 
   buildTiles(T) {
@@ -104,7 +112,8 @@ export class HeatmapPanel extends Panel {
     const span = t1 - t0;
     const dpr = window.devicePixelRatio || 1;
     const width = Math.max(1, Math.ceil(this.plotWidth * dpr));
-    const scratch = this.scratch || (this.scratch = document.createElement("canvas"));
+    const scratch =
+      this.scratch || (this.scratch = document.createElement("canvas"));
     if (scratch.width !== width || scratch.height !== rows) {
       scratch.width = width;
       scratch.height = rows;
@@ -118,7 +127,10 @@ export class HeatmapPanel extends Panel {
     sctx.imageSmoothingQuality = "high";
     for (const tile of this.tiles) {
       const i0 = Math.max(tile.start, Math.floor(t0 / dt + 0.5) - 1);
-      const i1 = Math.min(tile.start + tile.w - 1, Math.ceil(t1 / dt + 0.5) + 1);
+      const i1 = Math.min(
+        tile.start + tile.w - 1,
+        Math.ceil(t1 / dt + 0.5) + 1,
+      );
       if (i1 < i0) continue;
       const sx = i0 - tile.start;
       const sw = i1 - i0 + 1;
@@ -129,7 +141,17 @@ export class HeatmapPanel extends Panel {
     this.clipPlot(ctx);
     ctx.imageSmoothingEnabled = rows > 48;
     ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(scratch, 0, 0, width, rows, this.plotLeft, this.plotTop, this.plotWidth, this.plotHeight);
+    ctx.drawImage(
+      scratch,
+      0,
+      0,
+      width,
+      rows,
+      this.plotLeft,
+      this.plotTop,
+      this.plotWidth,
+      this.plotHeight,
+    );
     ctx.restore();
     this.drawRowAxis(ctx, T);
   }
@@ -188,14 +210,22 @@ export class HeatmapPanel extends Panel {
 
   rowLabel(r) {
     const d = this.data;
-    if (d.rowValues) return `${formatHz(d.rowValues[r])} ${d.rowUnit || ""}`.trim();
-    if (d.rowLabels) return d.rowUnit ? `${d.rowLabels[r]} ${d.rowUnit}` : d.rowLabels[r];
+    if (d.rowValues)
+      return `${formatHz(d.rowValues[r])} ${d.rowUnit || ""}`.trim();
+    if (d.rowLabels)
+      return d.rowUnit ? `${d.rowLabels[r]} ${d.rowUnit}` : d.rowLabels[r];
     return `row ${r + 1}`;
   }
 
   rowAtY(y) {
     if (y == null || y < this.plotTop || y > this.plotBottom) return -1;
-    return Math.max(0, Math.min(this.data.rows - 1, Math.floor((this.plotBottom - y) / this.rowHeight())));
+    return Math.max(
+      0,
+      Math.min(
+        this.data.rows - 1,
+        Math.floor((this.plotBottom - y) / this.rowHeight()),
+      ),
+    );
   }
 
   valueAt(time, pointerY) {
@@ -227,7 +257,10 @@ export class HeatmapPanel extends Panel {
     const d = this.data;
     const columns = [];
     for (let r = 0; r < d.rows; r++) {
-      columns.push({ name: `${this.feature.id}:${this.rowLabel(r)}`, at: (i) => (i < d.n ? d.data[r * d.n + i] : NaN) });
+      columns.push({
+        name: `${this.feature.id}:${this.rowLabel(r)}`,
+        at: (i) => (i < d.n ? d.data[r * d.n + i] : NaN),
+      });
     }
     return columns;
   }

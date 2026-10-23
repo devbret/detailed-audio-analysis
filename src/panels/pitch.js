@@ -14,13 +14,18 @@ export class PitchPanel extends LinePanel {
     }
     let lo = C2;
     let hi = C7;
-    if (d.min === d.min && d.min < lo) lo = lo / 2 ** Math.ceil(Math.log2(lo / d.min));
-    if (d.max === d.max && d.max > hi) hi = hi * 2 ** Math.ceil(Math.log2(d.max / hi));
+    if (d.min === d.min && d.min < lo)
+      lo = lo / 2 ** Math.ceil(Math.log2(lo / d.min));
+    if (d.max === d.max && d.max > hi)
+      hi = hi * 2 ** Math.ceil(Math.log2(d.max / hi));
     return [lo, hi];
   }
 
   yScale(axis) {
-    return d3.scaleLog().domain(this.yDomain(axis)).range([this.plotBottom, this.plotTop]);
+    return d3
+      .scaleLog()
+      .domain(this.yDomain(axis))
+      .range([this.plotBottom, this.plotTop]);
   }
 
   yTicks(scale) {
@@ -46,6 +51,9 @@ export class PitchPanel extends LinePanel {
   valueAt(time) {
     const v = this.data.values[this.frameAt(time)];
     if (v !== v) return { value: "unvoiced" };
-    return { value: `${formatValue(v, this.feature.decimals)} Hz`, label: `${this.feature.label}: ${noteName(v)}` };
+    return {
+      value: `${formatValue(v, this.feature.decimals)} Hz`,
+      label: `${this.feature.label}: ${noteName(v)}`,
+    };
   }
 }
