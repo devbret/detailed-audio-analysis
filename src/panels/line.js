@@ -30,7 +30,10 @@ export class LinePanel extends Panel {
   }
 
   yScale(axis) {
-    return d3.scaleLinear().domain(this.yDomain(axis)).range([this.plotBottom, this.plotTop]);
+    return d3
+      .scaleLinear()
+      .domain(this.yDomain(axis))
+      .range([this.plotBottom, this.plotTop]);
   }
 
   yTicks(scale) {
@@ -53,7 +56,13 @@ export class LinePanel extends Panel {
       ctx.lineTo(this.plotRight, by);
       ctx.stroke();
     }
-    const sample = sampleSeries(this.data.values, this.data.dt, axis, this.plotLeft, this.plotWidth);
+    const sample = sampleSeries(
+      this.data.values,
+      this.data.dt,
+      axis,
+      this.plotLeft,
+      this.plotWidth,
+    );
     this.clipPlot(ctx);
     drawSampled(ctx, sample, y, this.hue(T));
     ctx.restore();
@@ -62,11 +71,18 @@ export class LinePanel extends Panel {
   valueAt(time) {
     const v = this.data.values[this.frameAt(time)];
     const units = this.feature.units ? ` ${this.feature.units}` : "";
-    return { value: v === v ? `${formatValue(v, this.feature.decimals)}${units}` : "-" };
+    return {
+      value: v === v ? `${formatValue(v, this.feature.decimals)}${units}` : "-",
+    };
   }
 
   csvColumns() {
     const values = this.data.values;
-    return [{ name: this.feature.id, at: (i) => (i < values.length ? values[i] : NaN) }];
+    return [
+      {
+        name: this.feature.id,
+        at: (i) => (i < values.length ? values[i] : NaN),
+      },
+    ];
   }
 }

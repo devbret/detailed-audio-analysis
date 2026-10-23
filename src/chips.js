@@ -22,7 +22,10 @@ export function buildChips(container, track, openIds, onToggle, onReset) {
       chip.append(el("span", "key"), document.createTextNode(feature.label));
       const available = !!(track && track.features[feature.source]);
       chip.disabled = !available;
-      chip.setAttribute("aria-pressed", String(available && openIds.includes(feature.id)));
+      chip.setAttribute(
+        "aria-pressed",
+        String(available && openIds.includes(feature.id)),
+      );
       chip.addEventListener("click", () => {
         const next = chip.getAttribute("aria-pressed") !== "true";
         chip.setAttribute("aria-pressed", String(next));

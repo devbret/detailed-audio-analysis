@@ -86,41 +86,61 @@ export class Panel {
     const grab = el("button", "grab");
     grab.type = "button";
     grab.title = "Drag to reorder, or focus and use the arrow keys";
-    grab.setAttribute("aria-label", `Move the ${this.feature.label} panel. Drag it, or use the up and down arrow keys.`);
+    grab.setAttribute(
+      "aria-label",
+      `Move the ${this.feature.label} panel. Drag it, or use the up and down arrow keys.`,
+    );
     const title = el("span", "title", this.feature.label);
     title.title = this.feature.description || "";
     grab.append(el("span", "drag"), el("span", "key"), title);
-    if (this.feature.units) grab.append(el("span", "units", this.feature.units));
+    if (this.feature.units)
+      grab.append(el("span", "units", this.feature.units));
     this.grab = grab;
     this.legend = el("span", "legend");
     head.append(grab, this.legend, el("span", "spacer"));
     if (this.supportsFitY) {
-      this.fitButton = button("Fit y", `Fit the ${this.feature.label} axis to the visible window`, () => {
-        this.setFitY(!this.fitY);
-      });
+      this.fitButton = button(
+        "Fit y",
+        `Fit the ${this.feature.label} axis to the visible window`,
+        () => {
+          this.setFitY(!this.fitY);
+        },
+      );
       this.fitButton.setAttribute("aria-pressed", "false");
       head.append(this.fitButton);
     }
     if (this.supportsTall) {
-      this.tallButton = button("Tall", `Toggle a taller ${this.feature.label} panel`, () => {
-        this.setTall(!this.tall);
-      });
+      this.tallButton = button(
+        "Tall",
+        `Toggle a taller ${this.feature.label} panel`,
+        () => {
+          this.setTall(!this.tall);
+        },
+      );
       this.tallButton.setAttribute("aria-pressed", "false");
       head.append(this.tallButton);
     }
-    head.append(button("", `Remove ${this.feature.label}`, () => this.onClose && this.onClose(this)));
+    head.append(
+      button(
+        "",
+        `Remove ${this.feature.label}`,
+        () => this.onClose && this.onClose(this),
+      ),
+    );
     return head;
   }
 
   setFitY(value) {
     this.fitY = value;
-    if (this.fitButton) this.fitButton.setAttribute("aria-pressed", String(value));
+    if (this.fitButton)
+      this.fitButton.setAttribute("aria-pressed", String(value));
     this.changed();
   }
 
   setTall(value) {
     this.tall = value;
-    if (this.tallButton) this.tallButton.setAttribute("aria-pressed", String(value));
+    if (this.tallButton)
+      this.tallButton.setAttribute("aria-pressed", String(value));
     this.resize(this.width);
     this.changed();
   }
@@ -176,7 +196,11 @@ export class Panel {
     ctx.fillStyle = T.muted;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(text, this.plotLeft + 8, this.plotTop + Math.max(8, this.plotHeight / 2));
+    ctx.fillText(
+      text,
+      this.plotLeft + 8,
+      this.plotTop + Math.max(8, this.plotHeight / 2),
+    );
   }
 
   drawYAxis(ctx, scale, T, ticks = scale.ticks(4), format = formatTick) {

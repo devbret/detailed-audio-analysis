@@ -103,7 +103,10 @@ export function tokens() {
 
 function interpolatorFor(kind, theme, ramp) {
   if (kind === "div") return d3.interpolateRgbBasis(DIV_STOPS[theme]);
-  if (ramp === "magma") return theme === "dark" ? d3.interpolateMagma : (t) => d3.interpolateMagma(1 - t);
+  if (ramp === "magma")
+    return theme === "dark"
+      ? d3.interpolateMagma
+      : (t) => d3.interpolateMagma(1 - t);
   return d3.interpolateRgbBasis([tokens().surface, ...SEQ_STOPS[theme]]);
 }
 

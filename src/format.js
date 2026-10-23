@@ -1,8 +1,27 @@
-d3.formatDefaultLocale({ decimal: ".", thousands: ",", grouping: [3], currency: ["$", ""], minus: "-" });
+d3.formatDefaultLocale({
+  decimal: ".",
+  thousands: ",",
+  grouping: [3],
+  currency: ["$", ""],
+  minus: "-",
+});
 
 const compactSI = d3.format("~s");
 const general = d3.format(".3~g");
-const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 
 export function formatValue(v, decimals) {
   if (v == null || Number.isNaN(v)) return "-";

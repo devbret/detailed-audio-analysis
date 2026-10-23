@@ -14,7 +14,8 @@
   --hue-pitch: #eda100;
   --hue-timbre: #e87ba4;
   --playhead: #e34948;
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font:
+    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --radius: 6px;
 }
 @media (prefers-color-scheme: dark) {
@@ -340,7 +341,8 @@ main {
   width: 8px;
   height: 12px;
   flex: none;
-  background: radial-gradient(circle, var(--muted) 1px, transparent 1.3px) 0 0 / 4px 4px;
+  background: radial-gradient(circle, var(--muted) 1px, transparent 1.3px) 0 0 /
+    4px 4px;
 }
 .panel-head .spacer {
   flex: 1;

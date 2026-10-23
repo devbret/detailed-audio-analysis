@@ -1,5 +1,18 @@
 const cache = new Map();
-const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
 const TONNETZ_LABELS = ["P5 x", "P5 y", "m3 x", "m3 y", "M3 x", "M3 y"];
 
 async function fetchJson(url) {
@@ -24,7 +37,10 @@ function fromIndex(index) {
   const tracks = index.tracks.map((t) => ({
     ...t,
     features: t.features || {},
-    load: (name) => fetchJson(`data/${encodeURIComponent(t.id)}/${encodeURIComponent(name)}.json`),
+    load: (name) =>
+      fetchJson(
+        `data/${encodeURIComponent(t.id)}/${encodeURIComponent(name)}.json`,
+      ),
   }));
   return { legacy: false, tracks };
 }
@@ -39,7 +55,9 @@ function hzToMel(hz) {
   const minLogHz = 1000;
   const minLogMel = minLogHz / fsp;
   const logstep = Math.log(6.4) / 27;
-  return hz >= minLogHz ? minLogMel + Math.log(hz / minLogHz) / logstep : hz / fsp;
+  return hz >= minLogHz
+    ? minLogMel + Math.log(hz / minLogHz) / logstep
+    : hz / fsp;
 }
 
 function melToHz(mel) {
@@ -47,24 +65,33 @@ function melToHz(mel) {
   const minLogHz = 1000;
   const minLogMel = minLogHz / fsp;
   const logstep = Math.log(6.4) / 27;
-  return mel >= minLogMel ? minLogHz * Math.exp(logstep * (mel - minLogMel)) : fsp * mel;
+  return mel >= minLogMel
+    ? minLogHz * Math.exp(logstep * (mel - minLogMel))
+    : fsp * mel;
 }
 
 function melFrequencies(n, fmin, fmax) {
   const a = hzToMel(fmin);
   const b = hzToMel(fmax);
-  return Array.from({ length: n }, (_, i) => +melToHz(a + ((b - a) * i) / (n - 1)).toFixed(1));
+  return Array.from(
+    { length: n },
+    (_, i) => +melToHz(a + ((b - a) * i) / (n - 1)).toFixed(1),
+  );
 }
 
 function hzLabel(hz) {
-  return hz >= 1000 ? `${+(hz / 1000).toPrecision(3)}k` : `${+hz.toPrecision(3)}`;
+  return hz >= 1000
+    ? `${+(hz / 1000).toPrecision(3)}k`
+    : `${+hz.toPrecision(3)}`;
 }
 
 function contrastLabels(rows, sr) {
   const edges = [0];
   for (let i = 0; i < rows; i++) edges.push(200 * 2 ** i);
   edges[edges.length - 1] = Math.min(edges[edges.length - 1], sr / 2);
-  return edges.slice(0, -1).map((lo, i) => `${hzLabel(lo)}-${hzLabel(edges[i + 1])}`);
+  return edges
+    .slice(0, -1)
+    .map((lo, i) => `${hzLabel(lo)}-${hzLabel(edges[i + 1])}`);
 }
 
 function bandIndex(key) {
@@ -75,7 +102,8 @@ function bandIndex(key) {
 function legacyFeature(key, value, track) {
   if (Array.isArray(value.values)) {
     if (key === "onsets") return { kind: "events", times: value.times };
-    if (Array.isArray(value.times)) return { kind: "events", times: value.times, values: value.values };
+    if (Array.isArray(value.times))
+      return { kind: "events", times: value.times, values: value.values };
     return { kind: "series", values: value.values };
   }
   const bands = Object.keys(value).sort((a, b) => bandIndex(a) - bandIndex(b));
@@ -84,9 +112,11 @@ function legacyFeature(key, value, track) {
   if (key === "mel_spectrogram") {
     out.row_values = melFrequencies(rows.length, 0, track.sr / 2);
     out.row_unit = "Hz";
-  } else if (key === "chroma") out.row_labels = NOTE_NAMES.slice(0, rows.length);
+  } else if (key === "chroma")
+    out.row_labels = NOTE_NAMES.slice(0, rows.length);
   else if (key === "timbre") out.row_labels = rows.map((_, i) => String(i + 1));
-  else if (key === "tonnetz") out.row_labels = TONNETZ_LABELS.slice(0, rows.length);
+  else if (key === "tonnetz")
+    out.row_labels = TONNETZ_LABELS.slice(0, rows.length);
   else if (key === "spectral_contrast") {
     out.row_labels = contrastLabels(rows.length, track.sr);
     out.row_unit = "Hz";
@@ -103,7 +133,10 @@ function fromLegacy(all) {
     }
     const features = {};
     for (const [name, payload] of Object.entries(raw)) {
-      features[name] = payload.kind === "matrix" ? { kind: "matrix", rows: payload.rows.length } : { kind: payload.kind };
+      features[name] =
+        payload.kind === "matrix"
+          ? { kind: "matrix", rows: payload.rows.length }
+          : { kind: payload.kind };
     }
     return {
       id: slugify(file),
@@ -194,7 +227,9 @@ export function prepareFeature(raw, track) {
 export function loadFeature(track, source) {
   const key = `${track.id}/${source}`;
   if (!cache.has(key)) {
-    const promise = track.load(source).then((raw) => (raw ? prepareFeature(raw, track) : null));
+    const promise = track
+      .load(source)
+      .then((raw) => (raw ? prepareFeature(raw, track) : null));
     promise.catch(() => cache.delete(key));
     cache.set(key, promise);
   }

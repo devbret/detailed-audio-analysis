@@ -8,7 +8,10 @@ export function readHash() {
   return {
     track: params.get("track") || null,
     panels: params.has("panels") ? panels : null,
-    view: view.length === 2 && view.every(Number.isFinite) && view[1] > view[0] ? view : null,
+    view:
+      view.length === 2 && view.every(Number.isFinite) && view[1] > view[0]
+        ? view
+        : null,
   };
 }
 

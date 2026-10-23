@@ -29,7 +29,11 @@ export class PanelStack {
     this.queued = false;
     this.reordering = false;
     this.reorder = null;
-    this.empty = el("div", "empty", "No panels open. Choose features above to add them.");
+    this.empty = el(
+      "div",
+      "empty",
+      "No panels open. Choose features above to add them.",
+    );
     this.crosshair = el("div", "crosshair");
     this.playhead = el("div", "playhead");
     this.readout = el("div", "readout");
@@ -116,7 +120,11 @@ export class PanelStack {
     const scale = this.axis.scale();
     const ticks = scale.ticks(Math.max(2, Math.floor(this.axis.width / 110)));
     const isWhole = (t, m) => Math.abs(t * m - Math.round(t * m)) < 1e-6;
-    const digits = ticks.every((t) => isWhole(t, 1)) ? 0 : ticks.every((t) => isWhole(t, 10)) ? 1 : 2;
+    const digits = ticks.every((t) => isWhole(t, 1))
+      ? 0
+      : ticks.every((t) => isWhole(t, 10))
+        ? 1
+        : 2;
     ctx.strokeStyle = T.baseline;
     ctx.lineWidth = 1;
     ctx.fillStyle = T.muted;
@@ -160,7 +168,11 @@ export class PanelStack {
         gesture = null;
         root.classList.remove("dragging");
         const [a, b] = [...pointers.values()];
-        pinch = { dist: Math.abs(a.x - b.x) || 1, center: (a.x + b.x) / 2, domain: [...this.axis.domain] };
+        pinch = {
+          dist: Math.abs(a.x - b.x) || 1,
+          center: (a.x + b.x) / 2,
+          domain: [...this.axis.domain],
+        };
         return;
       }
       if (e.button !== 0 || !this.axis) return;
@@ -177,7 +189,8 @@ export class PanelStack {
     });
 
     root.addEventListener("pointermove", (e) => {
-      if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.has(e.pointerId))
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (pinch && pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         const dist = Math.abs(a.x - b.x) || 1;
@@ -185,7 +198,8 @@ export class PanelStack {
         const left = root.getBoundingClientRect().left + GUTTER;
         const span0 = pinch.domain[1] - pinch.domain[0];
         const span = span0 / (dist / pinch.dist);
-        const anchor = pinch.domain[0] + ((pinch.center - left) / this.axis.width) * span0;
+        const anchor =
+          pinch.domain[0] + ((pinch.center - left) / this.axis.width) * span0;
         const frac = (center - left) / this.axis.width;
         this.axis.setDomain([anchor - frac * span, anchor + (1 - frac) * span]);
         return;
@@ -198,7 +212,9 @@ export class PanelStack {
             if (gesture.kind === "pending") this.updateHover(e);
             return;
           }
-          const vertical = gesture.kind === "header" || (gesture.mouse && Math.abs(dy) > Math.abs(dx));
+          const vertical =
+            gesture.kind === "header" ||
+            (gesture.mouse && Math.abs(dy) > Math.abs(dx));
           if (vertical && gesture.panel) {
             gesture.kind = "reorder";
             this.beginReorder(gesture.panel, gesture.y0);
@@ -250,13 +266,16 @@ export class PanelStack {
         if (e.ctrlKey || e.metaKey) {
           e.preventDefault();
           const t = this.timeAt(e.clientX);
-          const anchor = t == null ? (this.axis.domain[0] + this.axis.domain[1]) / 2 : t;
+          const anchor =
+            t == null ? (this.axis.domain[0] + this.axis.domain[1]) / 2 : t;
           this.axis.zoomAround(Math.exp(-e.deltaY * unit * 0.0025), anchor);
           return;
         }
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
           e.preventDefault();
-          this.axis.panBy(((e.deltaX * unit) / this.axis.width) * this.axis.span);
+          this.axis.panBy(
+            ((e.deltaX * unit) / this.axis.width) * this.axis.span,
+          );
         }
       },
       { passive: false },
@@ -286,7 +305,11 @@ export class PanelStack {
     const { tops, heights, index } = r;
     const last = tops.length - 1;
     const height = heights[index];
-    const offset = clamp(clientY - r.startY, -tops[index], tops[last] + heights[last] - tops[index] - height);
+    const offset = clamp(
+      clientY - r.startY,
+      -tops[index],
+      tops[last] + heights[last] - tops[index] - height,
+    );
     r.panel.el.style.transform = `translateY(${offset}px)`;
     const center = tops[index] + height / 2 + offset;
     let insertAt = 0;
@@ -300,7 +323,8 @@ export class PanelStack {
       if (k === index) continue;
       const current = k > index ? height : 0;
       const final = j >= insertAt ? height : 0;
-      this.panels[k].el.style.transform = final === current ? "" : `translateY(${final - current}px)`;
+      this.panels[k].el.style.transform =
+        final === current ? "" : `translateY(${final - current}px)`;
       j++;
     }
   }
@@ -372,7 +396,12 @@ export class PanelStack {
     const time = el("div", "rtime", formatTime(this.cursor.time, 2));
     const table = document.createElement("table");
     for (const panel of this.panels) {
-      const result = panel.data ? panel.valueAt(this.cursor.time, panel === this.cursor.panel ? this.cursor.y : null) : null;
+      const result = panel.data
+        ? panel.valueAt(
+            this.cursor.time,
+            panel === this.cursor.panel ? this.cursor.y : null,
+          )
+        : null;
       const row = document.createElement("tr");
       const keyCell = el("td");
       const key = el("span", "k");
@@ -428,7 +457,12 @@ export class PanelStack {
         else if (t > axis.domain[1]) axis.panBy(t - axis.domain[1]);
         this.keyboardCursor = true;
         const c = this.cursor || {};
-        this.setCursor(t, c.panel || null, c.y == null ? null : c.y, c.rootY == null ? null : c.rootY);
+        this.setCursor(
+          t,
+          c.panel || null,
+          c.y == null ? null : c.y,
+          c.rootY == null ? null : c.rootY,
+        );
         e.preventDefault();
       } else if (e.key === "Escape") {
         this.hideCursor();
@@ -478,7 +512,10 @@ export class PanelStack {
     this.panels.splice(from, 1);
     const at = this.panels.indexOf(target) + (before ? 0 : 1);
     this.panels.splice(at, 0, panel);
-    this.root.insertBefore(panel.el, before ? target.el : target.el.nextSibling);
+    this.root.insertBefore(
+      panel.el,
+      before ? target.el : target.el.nextSibling,
+    );
     this.requestRender();
   }
 
@@ -491,12 +528,20 @@ export class PanelStack {
     const i1 = Math.min(frames - 1, Math.floor(t1 / dt));
     const columns = this.panels.flatMap((p) => (p.data ? p.csvColumns() : []));
     const quote = (s) => `"${String(s).replace(/"/g, '""')}"`;
-    const lines = [["time_s", ...columns.map((c) => c.name)].map(quote).join(",")];
+    const lines = [
+      ["time_s", ...columns.map((c) => c.name)].map(quote).join(","),
+    ];
     for (let i = i0; i <= i1; i++) {
       const row = [(i * dt).toFixed(4)];
       for (const column of columns) {
         const v = column.at(i);
-        row.push(v == null || v !== v ? "" : typeof v === "number" ? String(+v.toFixed(6)) : quote(v));
+        row.push(
+          v == null || v !== v
+            ? ""
+            : typeof v === "number"
+              ? String(+v.toFixed(6))
+              : quote(v),
+        );
       }
       lines.push(row.join(","));
     }

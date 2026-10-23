@@ -75,7 +75,10 @@ export class Overview {
       if (event.type === "end") this.axis.reset();
       return;
     }
-    this.axis.setDomain([this.timeOfX(selection[0]), this.timeOfX(selection[1])]);
+    this.axis.setDomain([
+      this.timeOfX(selection[0]),
+      this.timeOfX(selection[1]),
+    ]);
   }
 
   syncBrush() {
@@ -98,7 +101,13 @@ export class Overview {
     ctx.fillText("Overview", 8, this.height / 2);
     if (!this.axis || !this.envelope) return;
     const full = { domain: [0, this.axis.duration] };
-    const sample = sampleSeries(this.envelope.values, this.envelope.dt, full, GUTTER, this.plotWidth);
+    const sample = sampleSeries(
+      this.envelope.values,
+      this.envelope.dt,
+      full,
+      GUTTER,
+      this.plotWidth,
+    );
     const max = this.envelope.max > 0 ? this.envelope.max : 1;
     const top = 6;
     const bottom = this.height - 6;
