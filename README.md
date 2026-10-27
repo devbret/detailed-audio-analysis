@@ -1,4 +1,4 @@
-# Detailed Audio Analysis And Visualizations
+# Detailed Audio Analyses And Visualizations
 
 ![The evolution of twenty audio features over time.](https://hosting.photobucket.com/bbcfb0d4-be20-44a0-94dc-65bff8947cf2/613a19d4-080f-45a7-a8d6-1baa9348925c.png)
 
@@ -6,7 +6,7 @@ Analyze and visualize how rhythm, timbre, loudness, pitch, spectral characterist
 
 ## Overview
 
-The backend Python script is an audio analysis and visualization tool for processing `.mp3` and `.wav` files from the local `audio` directory and converting them into a detailed `.json` dataset. Using Python, `Librosa`, `NumPy` and concurrent processing, this app extracts a wide range of audio features. The result is a structured `audio_analysis_enhanced.json` file intended to capture how each musical and acoustic property changes over time for every analyzed track.
+The backend Python script is an audio analysis and visualization tool for processing `.mp3` and `.wav` files from the local `audio` directory and converting them into a detailed `.json` dataset. Using Python, `Librosa`, `NumPy` and concurrent processing, this app extracts a wide range of audio features. The result is a `data` directory containing an `index.json` file listing analyzed tracks, plus a folder for each track holding one `.json` file per feature. Together these files capture how each musical and acoustic property changes over time for every analyzed track.
 
 Whereas the frontend turns the Python analysis data into an interactive experience using D3.js. For each audio file, the app creates a playback interface, then renders toggleable charts for extracted features. This lets users listen to a track while visually inspecting it. Overall, this application functions as a detailed audio fingerprinting and comparison system, useful for exploring sound design, studying musical characteristics, comparing tracks or building visual representations of audio files.
 
@@ -56,7 +56,7 @@ Below you will find information not covered in the installation and use sections
 
 This project repo is intended to demonstrate an ability to do the following:
 
-- Analyze `.mp3` and `.wav` files from the `audio` directory and save detailed audio feature data to a `.json` file
+- Analyze `.mp3` and `.wav` files from the `audio` directory and save detailed audio feature data as `.json` files in the `data` directory
 
 - Extract characteristics such as tempo, onsets, loudness, MFCC timbre, mel spectrogram values and others
 
@@ -66,9 +66,9 @@ This project repo is intended to demonstrate an ability to do the following:
 
 ### Please Also Note
 
-The JSON file this Python script outputs will be very, very large. And takes a prolonged period of time to generate. As an example, putting one Drum And Bass track through this program produces almost 600 MB of data and took sixty seconds to compute.
+Analysis time and output size both grow with the length and number of your tracks. As an example, putting one sixty-second dubstep track through this program produced 2.9 MB of data and took about seventeen seconds to compute.
 
-Also, your browser may have a difficult time loading and displaying excessively sized JSON files. I find Firefox to be the most compatible internet browser when viewing the frontend of this application.
+The frontend only loads the data for the charts you have open, rather than every feature at once.
 
 ### License Information
 
